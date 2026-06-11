@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->string('storage_path');
+            $table->string('storage_path', 4096);
             $table->unsignedBigInteger('file_size_bytes');
             $table->string('mime_type');
             $table->string('file_type');
-            $table->foreignId('uploaded_by')->index('idx_uploaded_by')->nullable()->constrained('users', 'id')->onDelete('set null');
+            $table->foreignId('uploaded_by')->index('idx_file_uploaded_by')->nullable()->constrained('users', 'id')->onDelete('set null');
             $table->timestamps();
         });
     }

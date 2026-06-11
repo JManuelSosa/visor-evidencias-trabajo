@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string("name", 80);
             $table->string("cct", 10)->unique("idx_cct");
-            $table->foreignId("zone_id")->nullable()->index('idx_zone_id')->constrained("zones", "id")->onDelete("set null");
-            $table->foreignId("director_id")->unique("idx_director_id")->nullable()->constrained("users", "id")->onDelete("set null");
+            $table->foreignId("zone_id")->nullable()->index('idx_kinder_zone_id')->constrained("zones", "id")->onDelete("set null");
+            $table->foreignId("director_id")->unique("idx_kinder_director_id")->nullable()->constrained("users", "id")->onDelete("set null");
         });
     }
 

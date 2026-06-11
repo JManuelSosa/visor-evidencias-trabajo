@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name', 80);
             $table->string('description', 3000)->nullable();
-            $table->foreignId('kindergarten_id')->index('idx_kindergarten_id')->nullable()->constrained('kindergartens', 'id')->onDelete('set null');
-            $table->foreignId('created_by')->index('idx_user_id')->constrained('users', 'id')->onDelete('cascade');
+            $table->foreignId('kindergarten_id')->index('idx_work_evidence_kindergarten_id')->nullable()->constrained('kindergartens', 'id')->onDelete('set null');
+            $table->foreignId('created_by')->index('idx_work_evidence_user_id')->constrained('users', 'id')->onDelete('cascade');
             $table->timestamps();
         });
     }

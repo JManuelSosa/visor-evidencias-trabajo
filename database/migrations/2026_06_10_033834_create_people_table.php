@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("paternal_last_name", 60);
             $table->string("maternal_last_name", 60)->nullable();
             $table->string("phone", 10)->nullable();
-            $table->foreignId("user_id")->unique('idx_person_user')->constrained("users", "id")->onDelete("cascade");
+            $table->foreignId("user_id")->unique('idx_people_person_user')->constrained("users", "id")->onDelete("cascade");
             $table->foreignId("photo_id")->nullable()->constrained("files", "id")->onDelete("set null");
             $table->timestamps();
         });

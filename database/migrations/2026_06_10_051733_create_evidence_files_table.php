@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('evidence_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('evidence_id')->constrained('work_evidence', 'id')->onDelete('cascade');
-            $table->foreignId('file_id')->index('idx_file_id')->constrained('files', 'id')->onDelete('cascade');
+            $table->foreignId('file_id')->index('idx_ev_files_file_id')->constrained('files', 'id')->onDelete('cascade');
             $table->string('name', 100)->nullable();
             $table->string('description', 300)->nullable();
             $table->foreignId('created_by')->index('idx_ev_files_created_by')->constrained('users', 'id')->onDelete('cascade');
