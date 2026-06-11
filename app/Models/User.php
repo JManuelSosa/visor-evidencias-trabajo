@@ -20,13 +20,13 @@ use App\Models\Zone;
 use App\Models\Kindergarten;
 use App\Models\Comment;
 use App\Models\EvidenceStar;
+use App\Models\Announcement;
 
 //* Enums
 use App\Enums\SystemRole as SystemRoleEnum;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     protected $table = "users";
@@ -82,6 +82,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function stars():HasMany {
         return $this->hasMany(EvidenceStar::class, 'user_id', 'id');
+    }
+
+    public function announcements():HasMany {
+        return $this->hasMany(Announcement::class, 'created_by', 'id');
     }
 
     public function hasRole(SystemRoleEnum $roleEnum):bool {
