@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 //* Modelos
 use App\Models\Announcement;
 
+//* Enums
+use App\Enums\UrlType;
+
 class AnnouncementUrl extends Model
 {
     protected $table = "announcement_urls";
@@ -17,6 +20,10 @@ class AnnouncementUrl extends Model
         'url',
         'label',
         'type'
+    ];
+
+    protected $casts = [
+        "type" => UrlType::class
     ];
 
     public function announcement():BelongsTo {
