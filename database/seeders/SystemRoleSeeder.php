@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Models\SystemRole;
 
 //* Enums
-use App\Enums\SystemRole as EnumRole;
+use App\Enums\RoleSystem as EnumRole;
 
 class SystemRoleSeeder extends Seeder
 {

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 //* Relaciones
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,11 +24,12 @@ use App\Models\EvidenceStar;
 use App\Models\Announcement;
 
 //* Enums
-use App\Enums\SystemRole as SystemRoleEnum;
+use App\Enums\RoleSystem as SystemRoleEnum;
+use Override;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasUuids;
 
     protected $table = "users";
 
@@ -48,12 +50,16 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
+    protected function casts(): array {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed'
         ];
+    }
+
+    #[Override]
+    public function uniqueIds() {
+        return ['public_id'];
     }
 
     public function role():BelongsTo {

@@ -1,7 +1,7 @@
 <?php
 namespace App\Enums;
 
-enum SystemRole:string {
+enum RoleSystem:string {
 
     case Root = "root";
     case Supervisor = "supervisor";

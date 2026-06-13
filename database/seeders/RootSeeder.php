@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\Person;
 
 use App\Models\SystemRole;
-use App\Enums\SystemRole as RoleEnum;
+use App\Enums\RoleSystem as RoleEnum;
 use Exception;
 
 class RootSeeder extends Seeder
