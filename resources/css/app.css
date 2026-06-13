@@ -6,4 +6,103 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-primary: var(--tw-primary);
+    --color-accent: var(--tw-accent);
+    --color-surface: var(--tw-surface);
+    --color-background: var(--tw-background);
+    --color-text:var(--tw-text);
+    --color-border: var(--tw-border);
+
+    --base-50:var(--b-50);
+    --base-100:var(--b-100);
+    --base-200:var(--b-200);
+    --base-300:var(--b-300);
+    --base-400:var(--b-400);
+    --base-500:var(--b-500);
+    --base-600:var(--b-600);
+    --base-700:var(--b-700);
+    --base-800:var(--b-800);
+    --base-900:var(--b-900);
+    --base-950:var(--b-950);
+}
+
+@layer base {
+
+    :root {
+
+        /* Theme: Lavender Soft */
+        --color-dull-lavender-50: #f5f3ff;
+        --color-dull-lavender-100: #ede9fe;
+        --color-dull-lavender-200: #ddd6fe;
+        --color-dull-lavender-300: #c4b5fd;
+        --color-dull-lavender-400: #a78bfa;
+        --color-dull-lavender-500: #8b5cf6;
+        --color-dull-lavender-600: #7c3aed;
+        --color-dull-lavender-700: #6d28d9;
+        --color-dull-lavender-800: #5b21b6;
+        --color-dull-lavender-900: #4c1d95;
+        --color-dull-lavender-950: #2e1065;
+
+        --b-50:var(--color-dull-lavender-50);
+        --b-100:var(--color-dull-lavender-100);
+        --b-200:var(--color-dull-lavender-200);
+        --b-300:var(--color-dull-lavender-300);
+        --b-400:var(--color-dull-lavender-400);
+        --b-500:var(--color-dull-lavender-500);
+        --b-600:var(--color-dull-lavender-600);
+        --b-700:var(--color-dull-lavender-700);
+        --b-800:var(--color-dull-lavender-800);
+        --b-900:var(--color-dull-lavender-900);
+        --b-950:var(--color-dull-lavender-950);
+
+        --tw-background:#fafafa;
+        --tw-text:#1a053c;
+        --tw-primary:#a78bfa;
+        --tw-accent:#442f78;
+        --tw-surface:#ffffff;
+        --tw-border:#d8c5ff;
+
+        /* Documento principal */
+
+        body {
+            color:var(--tw-text);
+        }
+    }
+
+    .azure-brand {
+        --color-lochmara-50: #f0f9ff;
+        --color-lochmara-100: #e0f2fe;
+        --color-lochmara-200: #bae6fd;
+        --color-lochmara-300: #7dd3fc;
+        --color-lochmara-400: #38bdf8;
+        --color-lochmara-500: #0ea5e9;
+        --color-lochmara-600: #0284c7;
+        --color-lochmara-700: #0369a1;
+        --color-lochmara-800: #075985;
+        --color-lochmara-900: #0c4a6e;
+        --color-lochmara-950: #082f49;
+
+        --b-50: var(--color-lochmara-50);
+        --b-100: var(--color-lochmara-100);
+        --b-200: var(--color-lochmara-200);
+        --b-300: var(--color-lochmara-300);
+        --b-400: var(--color-lochmara-400);
+        --b-500: var(--color-lochmara-500);
+        --b-600: var(--color-lochmara-600);
+        --b-700: var(--color-lochmara-700);
+        --b-800: var(--color-lochmara-800);
+        --b-900: var(--color-lochmara-900);
+        --b-950: var(--color-lochmara-950);
+
+        --tw-background: #fafafa;
+        --tw-text: #001543;
+        --tw-primary: #0284c7;
+        --tw-accent: #004381;
+        --tw-surface: #ffffff;
+        --tw-border: #e2e8f0;
+    }
+
+
+
 }
