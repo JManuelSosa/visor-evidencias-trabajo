@@ -6,10 +6,10 @@
 @theme {
 
     /* Body */
-    --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Open Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
     /* El Headline */
-    --font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Montserrat Variable', ui-sans-serif, system-ui, sans-serif;
 
     --color-primary: var(--tw-primary);
     --color-accent: var(--tw-accent);
