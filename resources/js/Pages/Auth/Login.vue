@@ -65,22 +65,27 @@ function submit():void {
             <div class="flex flex-col gap-6 bg-surface rounded-xl border border-border w-100 shadow-card-1">
                 <h1 class="font-semibold text-text/80 text-3xl text-center mt-8 mb-4">Inicio de sesión</h1>
 
-                <form class="flex flex-col gap-10 justify-center px-10 mb-10" @submit.prevent="submit">
-                    <FloatLabel variant="on">
-                        <InputText id="login-email" class="w-full" name="email" v-model="form.email"/>
-                        <label for="login-email">Correo electrónico</label>
-                        <small v-if="form.errors.email" class="text-red-500 font-medium">
+                <form class="flex flex-col gap-6 justify-center px-10 mb-10" @submit.prevent="submit">
+                    <div>
+                        <FloatLabel variant="on">
+                            <InputText id="login-email" class="w-full" name="email" v-model="form.email"/>
+                            <label for="login-email">Correo electrónico</label>
+                        </FloatLabel>
+                        <small class="text-red-600 font-medium block h-5">
                             {{ form.errors.email }}
                         </small>
-                    </FloatLabel>
+                    </div>
 
-                    <FloatLabel variant="on">
-                        <Password name="password" id="login-password" class="w-full" toggle-mask :feedback="false" inputClass="w-full" v-model="form.password"/>
-                        <label for="login-password">Contraseña</label>
-                        <small v-if="form.errors.password" class="text-red-500 font-medium">
+                    <div>
+                        <FloatLabel variant="on">
+                            <Password name="password" id="login-password" class="w-full" toggle-mask :feedback="false" inputClass="w-full" v-model="form.password"/>
+                            <label for="login-password">Contraseña</label>
+                        </FloatLabel>
+                        <small class="text-red-600 font-medium block h-5">
                             {{ form.errors.password }}
                         </small>
-                    </FloatLabel>
+                    </div>
+
 
                     <div class="w-full flex flex-col items-center gap-5">
                         <Button rounded class="btn-login w-full" type="submit" :disabled="form.processing">
