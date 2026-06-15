@@ -18,17 +18,20 @@
     --color-text:var(--tw-text);
     --color-border: var(--tw-border);
 
-    --base-50:var(--b-50);
-    --base-100:var(--b-100);
-    --base-200:var(--b-200);
-    --base-300:var(--b-300);
-    --base-400:var(--b-400);
-    --base-500:var(--b-500);
-    --base-600:var(--b-600);
-    --base-700:var(--b-700);
-    --base-800:var(--b-800);
-    --base-900:var(--b-900);
-    --base-950:var(--b-950);
+    --color-system-theme-50:var(--b-50);
+    --color-system-theme-100:var(--b-100);
+    --color-system-theme-200:var(--b-200);
+    --color-system-theme-300:var(--b-300);
+    --color-system-theme-400:var(--b-400);
+    --color-system-theme-500:var(--b-500);
+    --color-system-theme-600:var(--b-600);
+    --color-system-theme-700:var(--b-700);
+    --color-system-theme-800:var(--b-800);
+    --color-system-theme-900:var(--b-900);
+    --color-system-theme-950:var(--b-950);
+
+    /* Shadows */
+    --shadow-card-1: color-mix(in srgb, var(--tw-primary) 25%, transparent) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
 @layer base {
@@ -69,8 +72,11 @@
 
         /* Documento principal */
 
-        body {
+        #app {
             color:var(--tw-text);
+            height: 100dvh;
+            width: 100dvw;
+            background-color: var(--color-background);
         }
     }
 
@@ -106,7 +112,4 @@
         --tw-surface: #ffffff;
         --tw-border: #e2e8f0;
     }
-
-
-
 }

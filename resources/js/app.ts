@@ -9,27 +9,32 @@ import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 
 //Fonts
+import '@fontsource-variable/montserrat/wght.css';
+import '@fontsource-variable/open-sans/wdth.css';
 import '@fontsource-variable/montserrat/wght-italic.css';
 import '@fontsource-variable/open-sans/wdth-italic.css';
 
 // css
 import '../css/app.css';
 
+// Iconos
+import 'remixicon/fonts/remixicon.css';
+
 
 const SystemTheme = definePreset(Aura, {
     semantic:{
         primary:{
-            50: 'var(--base-50)',
-            100: 'var(--base-100)',
-            200: 'var(--base-200)',
-            300: 'var(--base-300)',
-            400: 'var(--base-400)',
-            500: 'var(--base-500)',
-            600: 'var(--base-600)',
-            700: 'var(--base-700)',
-            800: 'var(--base-800)',
-            900: 'var(--base-900)',
-            950: 'var(--base-950)'
+            50: 'var(--color-system-theme-50)',
+            100: 'var(--color-system-theme-100)',
+            200: 'var(--color-system-theme-200)',
+            300: 'var(--color-system-theme-300)',
+            400: 'var(--color-system-theme-400)',
+            500: 'var(--color-system-theme-500)',
+            600: 'var(--color-system-theme-600)',
+            700: 'var(--color-system-theme-700)',
+            800: 'var(--color-system-theme-800)',
+            900: 'var(--color-system-theme-900)',
+            950: 'var(--color-system-theme-950)'
         }
     }
 })
