@@ -13,6 +13,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/mail-preview', function () {
+    // Tomamos al primer usuario de tu base de datos para que Laravel
+    // pueda generar el enlace firmado correctamente
+    $user = \App\Models\User::first();
+
+    // Instanciamos la notificación nativa de verificación de Laravel
+    $notification = new \Illuminate\Auth\Notifications\VerifyEmail();
+
+    // Le pedimos a Laravel que renderice el correo para este usuario
+    return $notification->toMail($user);
+});
 
 //* Rutas públicas
 Route::middleware('guest')->group(function() {

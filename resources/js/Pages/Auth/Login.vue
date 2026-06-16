@@ -55,7 +55,7 @@ function submit():void {
 </script>
 
 <template>
-    <main class="w-full min-h-screen gap-5 flex flex-col bg-background">
+    <main class="w-full min-h-screen gap-5 flex flex-col bg-system-theme-50">
         <div class="flex justify-end w-full my-6 pr-6">
             <Link href="/register" class="text-base text-system-theme-500 hover:underline">¿No tienes una cuenta? Registrate aquí</Link>
         </div>

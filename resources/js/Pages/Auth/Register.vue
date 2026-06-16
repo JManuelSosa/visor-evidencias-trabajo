@@ -28,9 +28,9 @@ function signIn(){
 
 <template>
 
-    <main class="min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 sm:p-8">
+    <main class="min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 sm:p-8 bg-system-theme-50">
 
-        <h1 class="font-heading font-bold text-4xl mb-10 italic">Registro</h1>
+
         <div class="shadow-card-1 w-10/12 max-w-6xl grid grid-cols-1 lg:grid-cols-24 rounded-4xl overflow-hidden">
             <figure class="w-full h-48 lg:h-full overflow-hidden min-w-0 lg:col-span-14">
                 <img class="h-full w-full block object-cover object-center" src="/images/hero-register.avif" alt="Manzana roja en 4 libros de pila">
@@ -38,9 +38,8 @@ function signIn(){
             </figure>
 
             <div class="flex flex-col shrink-0 lg:col-span-10 bg-surface">
-
+                <h1 class="font-heading font-bold text-3xl italic text-center mt-6">Registro</h1>
                 <form class="py-5 px-8 flex flex-col gap-3 flex-1 justify-evenly" @submit.prevent="signIn">
-
                     <fieldset class="min-w-0 flex flex-col gap-2.5">
                         <legend class="mb-3.5 font-heading font-semibold text-lg italic">Datos personales</legend>
 
