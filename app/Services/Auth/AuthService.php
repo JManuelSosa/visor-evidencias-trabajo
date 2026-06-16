@@ -16,4 +16,8 @@ class AuthService {
         ]);
     }
 
+    public function register(array $data){
+
+    }
+
 }

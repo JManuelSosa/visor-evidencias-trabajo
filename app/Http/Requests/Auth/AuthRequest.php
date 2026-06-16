@@ -4,7 +4,6 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Override;
 
 class AuthRequest extends FormRequest
 {
@@ -24,8 +23,8 @@ class AuthRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "email" => 'required|email',
-            "password" => 'required|string'
+            "email" => ['required', 'email'],
+            "password" => ['required', 'string']
         ];
     }
 
@@ -35,7 +34,7 @@ class AuthRequest extends FormRequest
             'email.required' => 'El correo electrónico es obligatorio',
             'email.email' => 'Por favor ingrese un correo electrónico válido',
             'password.required' => 'La contraseña es obligatoria',
-            'password.string' => 'La contraseña tiene un formato no válido, por favor verifique',
+            'password.string' => 'La contraseña tiene un formato no válido',
         ];
     }
 }

@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 //Prime Vue
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import { KeyFilter } from 'primevue';
 import { definePreset } from '@primeuix/themes';
 
 //Fonts
@@ -42,11 +43,15 @@ const SystemTheme = definePreset(Aura, {
 createInertiaApp({
     resolve:(name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob<DefineComponent>('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }){
-        createApp({ render: () => h(App, props)})
+
+        const app = createApp({ render: () => h(App, props)})
         .use(plugin)
         .use(PrimeVue, {
             theme: { preset:SystemTheme }
-        })
-        .mount(el);
+        });
+
+        app.directive('keyfilter', KeyFilter);
+
+        app.mount(el);
     }
 })
