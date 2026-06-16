@@ -13,17 +13,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/mail-preview', function () {
-    // Tomamos al primer usuario de tu base de datos para que Laravel
-    // pueda generar el enlace firmado correctamente
-    $user = \App\Models\User::first();
-
-    // Instanciamos la notificación nativa de verificación de Laravel
-    $notification = new \Illuminate\Auth\Notifications\VerifyEmail();
-
-    // Le pedimos a Laravel que renderice el correo para este usuario
-    return $notification->toMail($user);
-});
 
 //* Rutas públicas
 Route::middleware('guest')->group(function() {
@@ -46,12 +35,7 @@ Route::middleware('auth')->group(function() {
         Route::post('verification-notification', [EmailVerificationController::class, 'resend'])->middleware(['throttle:6,1'])->name('verification.send');
     });
 
-    Route::post('/logout', function (\Illuminate\Http\Request $request) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/login');
-    })->name('logout');
+    Route::post('/logout', [AuthController::class, 'signOut'])->name('logout');
 
     Route::middleware('verified')->group(function() {
         Route::get('/home', function() {

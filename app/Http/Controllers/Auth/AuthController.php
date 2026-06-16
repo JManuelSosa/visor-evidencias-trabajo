@@ -9,6 +9,7 @@ use App\Services\Auth\AuthService;
 use App\Services\UseCases\RegisterUseCase;
 
 //* Request
+use Illuminate\Http\Request;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 
@@ -37,6 +38,15 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         return redirect()->intended('/home');
+    }
+
+    public function signOut(Request $request) {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
     }
 
     public function register(RegisterRequest $request) {
