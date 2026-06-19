@@ -6,8 +6,9 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 //Prime Vue
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
-import { KeyFilter } from 'primevue';
+import { KeyFilter, Tooltip } from 'primevue';
 import { definePreset } from '@primeuix/themes';
+
 
 //Fonts
 import '@fontsource-variable/montserrat/wght.css';
@@ -51,6 +52,7 @@ createInertiaApp({
         });
 
         app.directive('keyfilter', KeyFilter);
+        app.directive('tooltip', Tooltip);
 
         app.mount(el);
     }

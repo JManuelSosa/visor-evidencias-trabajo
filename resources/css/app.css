@@ -32,6 +32,8 @@
 
     /* Shadows */
     --shadow-card-1: color-mix(in srgb, var(--tw-primary) 25%, transparent) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    --shadow-card-2: color-mix(in srgb, var(--tw-primary) 16%, transparent) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    --shadow-card-3: color-mix(in srgb, var(--tw-primary) 25%, transparent) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 
 @layer base {
