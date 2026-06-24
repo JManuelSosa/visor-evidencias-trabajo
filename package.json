@@ -7,6 +7,7 @@
         "dev": "vite"
     },
     "devDependencies": {
+        "@tailwindcss/typography": "^0.5.20",
         "@tailwindcss/vite": "^4.0.0",
         "@types/node": "^25.9.3",
         "@vitejs/plugin-vue": "^6.0.7",
@@ -22,6 +23,10 @@
         "@fontsource-variable/open-sans": "^5.2.7",
         "@inertiajs/vue3": "^3.3.1",
         "@primeuix/themes": "^2.0.3",
+        "@tiptap/extension-text-align": "^3.27.1",
+        "@tiptap/extension-underline": "^3.27.1",
+        "@tiptap/starter-kit": "^3.27.1",
+        "@tiptap/vue-3": "^3.27.1",
         "primevue": "^4.5.5",
         "remixicon": "^4.9.1",
         "vue": "^3.5.35",

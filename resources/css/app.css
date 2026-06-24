@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -80,6 +81,7 @@
             width: 100dvw;
             background-color: var(--color-background);
         }
+
     }
 
     .azure-brand {
@@ -113,5 +115,76 @@
         --tw-accent: #004381;
         --tw-surface: #ffffff;
         --tw-border: #e2e8f0;
+    }
+
+    /*  SCROLLBAR GLOBAL (FUERA DE :ROOT) */
+
+    /* 1. Scrollbar de la ventana principal (Viewport) */
+    html, body {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-system-theme-400) var(--color-system-theme-100);
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track {
+        background: var(--color-system-theme-100);
+        border-radius: 4px;
+    }
+
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb {
+        background: var(--color-system-theme-400);
+        border-radius: 4px;
+    }
+
+    html::-webkit-scrollbar-thumb:hover,
+    body::-webkit-scrollbar-thumb:hover {
+        background: var(--color-system-theme-500);
+    }
+
+    html::-webkit-scrollbar-corner,
+    body::-webkit-scrollbar-corner {
+        background: var(--color-system-theme-100);
+    }
+
+    /* 2. Scrollbar de componentes internos (Descendientes) */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-system-theme-400) var(--color-system-theme-100);
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: var(--color-system-theme-100);
+        border-radius: 4px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: var(--color-system-theme-400);
+        border-radius: 4px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: var(--color-system-theme-500);
+    }
+
+    /* Clase utilitaria para ocultar scrollbar */
+    .scrollbar-hidden {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hidden::-webkit-scrollbar {
+        display: none;
     }
 }

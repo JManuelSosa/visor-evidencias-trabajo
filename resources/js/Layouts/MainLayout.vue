@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { Toaster } from 'vue-sonner';
-import 'vue-sonner/style.css'
+import ToastLayout from './ToastLayout.vue';
+import Navbar from './Navbar.vue';
 </script>
 
 <template>
-    <Toaster position="top-center" richColors closeButton closeButtonPosition="top-right"/>
-    <slot/>
+    <ToastLayout>
+        <main class="w-full min-h-screen flex flex-col md:flex-row bg-system-theme-50">
+            <Navbar/>
+            <section class="flex-1 overflow-y-auto min-h-0 p-6">
+                <slot />
+            </section>
+        </main>
+    </ToastLayout>
 </template>

@@ -38,9 +38,30 @@ Route::middleware('auth')->group(function() {
     Route::post('/logout', [AuthController::class, 'signOut'])->name('logout');
 
     Route::middleware('verified')->group(function() {
+
         Route::get('/home', function() {
             return Inertia::render('App/Home');
         })->name('home');
+
+        Route::prefix('/anuncios')->group(function(){
+            Route::get('/', function() {
+                return Inertia::render('App/Announcements/Announcement');
+            })->name('anuncios');
+
+            Route::get('/agregar', function() {
+                return Inertia::render('App/Announcements/AnnouncementForm');
+            })->name('anuncios');
+        });
+
+
+
+        Route::get('/evidencias', function() {
+            return Inertia::render('App/Evidences');
+        })->name('evidencias');
+
+        Route::get('/perfil', function() {
+            return Inertia::render('App/Profile');
+        })->name('perfil');
     });
 
 });

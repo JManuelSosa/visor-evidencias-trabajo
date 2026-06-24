@@ -3,10 +3,10 @@ import { ref, computed, onUnmounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { Button } from 'primevue';
 
-import PluginLayout from '../../Layouts/MainLayout.vue/index.js';
+import ToastLayout from '../../Layouts/ToastLayout.vue';
 import { toast } from 'vue-sonner';
 
-defineOptions({ layout: PluginLayout });
+defineOptions({ layout: ToastLayout });
 
 interface VerifyEmailProps {
     email:string;

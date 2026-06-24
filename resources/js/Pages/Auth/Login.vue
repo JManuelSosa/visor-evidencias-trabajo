@@ -12,10 +12,10 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 
 // Toast
-import PluginLayout from '../../Layouts/MainLayout.vue/index.js';
+import ToastLayout from '../../Layouts/ToastLayout.vue';
 import { toast } from 'vue-sonner';
 
-defineOptions({ layout: PluginLayout });
+defineOptions({ layout: ToastLayout });
 
 const form = useForm({
     email: '',
