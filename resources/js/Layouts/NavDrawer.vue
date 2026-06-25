@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Drawer, Avatar, Button } from 'primevue';
-import { NavItem } from '../core/NavItem';
+import type { NavItem } from '@/core/NavItem';
 
-import Logo from '../components/Logo.vue';
+import Logo from '@/components/Logo.vue';
 
 const DrawerProps = defineProps<{
     items:NavItem[],

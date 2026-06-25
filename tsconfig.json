@@ -3,12 +3,20 @@
         "target": "es2025",
         "module": "esnext",
         "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
         "strict": true,
         "jsx": "preserve",
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "isolatedModules": true,
         "skipLibCheck": true,
+        "lib": ["es2025", "dom", "dom.iterable"],
+
+        // Paths para imports absolutos
+        "paths": {
+            "@/*": ["./resources/js/*"]
+        },
 
         // TS 6.0: Es obligatorio declarar los types de entorno manualmente
         "types": [

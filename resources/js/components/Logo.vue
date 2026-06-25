@@ -1,4 +1,3 @@
-
 <template>
     <div>
         <figure class="bg-system-theme-300 rounded-full h-45 w-45 relative">

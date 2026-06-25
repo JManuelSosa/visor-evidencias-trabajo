@@ -78,8 +78,9 @@
         #app {
             color:var(--tw-text);
             min-height: 100dvh;
-            width: 100dvw;
+            width: 100%;
             background-color: var(--color-background);
+            box-sizing: border-box
         }
 
     }

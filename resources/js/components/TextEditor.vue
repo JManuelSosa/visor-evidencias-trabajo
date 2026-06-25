@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
-import { ref, watch } from 'vue';
 import { Button, Select, Popover } from 'primevue';
 
 const editorProps = defineProps({
@@ -301,8 +301,7 @@ watch(() => editorProps.modelValue, (value) => {
             </div>
         </div>
 
-        <!-- Área de edición - flex-1 para ocupar el espacio restante -->
-        <div class="tiptap-content-wrapper flex-1 overflow-y-auto scrollbar-hidden">
+        <div class="tiptap-content-wrapper flex-1 overflow-y-auto">
             <EditorContent :editor="editor" />
         </div>
     </div>

@@ -12,7 +12,7 @@ import FloatLabel from 'primevue/floatlabel';
 import Button from 'primevue/button';
 
 // Toast
-import ToastLayout from '../../Layouts/ToastLayout.vue';
+import ToastLayout from '@/Layouts/ToastLayout.vue';
 import { toast } from 'vue-sonner';
 
 defineOptions({ layout: ToastLayout });

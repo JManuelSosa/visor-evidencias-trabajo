@@ -4,7 +4,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { Button } from 'primevue';
 
 import NavDrawer from './NavDrawer.vue';
-import { NavItem } from '../core/NavItem';
+import type { NavItem } from '@/core/NavItem.ts';
 
 const navItems:NavItem[] = [
     {

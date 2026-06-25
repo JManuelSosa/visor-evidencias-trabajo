@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import Button from 'primevue/button';
-import MainLayout from '../../Layouts/MainLayout.vue';
-import Navbar from '../../Layouts/Navbar.vue';
+import MainLayout from '@/Layouts/MainLayout.vue';
 
 defineOptions({ layout:MainLayout });
 </script>
