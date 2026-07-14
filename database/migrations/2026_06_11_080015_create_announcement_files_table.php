@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('announcement_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('announcement_id')->index('idx_ann_files_announcement')->constrained('announcements', 'id')->onDelete('cascade');
-            $table->foreignId('file_id')->constrained('files', 'id')->onDelete('cascade');
+            $table->foreignId('file_id')->constrained('files', 'id')->onDelete('cascade')->index('idx_ann_files_file_id');
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
+            $table->unsignedTinyInteger('sort_order')->default(0)->index('idx_ann_files_sort_order');
             $table->unique(['announcement_id', 'file_id'], 'idx_ann_files_file_unique');
             $table->timestamps();
         });
