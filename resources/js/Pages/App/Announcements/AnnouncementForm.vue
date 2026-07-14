@@ -1,144 +1,171 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-import { Button, InputText } from 'primevue';
-import MainLayout from '../../../Layouts/MainLayout.vue';
-import TextEditor from '../../../components/TextEditor.vue';
-import { UrlItem } from '../../../core/UrlItem.js';
-import LinkListDialog from '../../../components/LinkListDialog.vue';
-import FileUpload from '../../../components/FileUpload.vue';
+import { ref } from 'vue';
+import { Button, InputText, Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primevue';
+import MainLayout from '@/Layouts/MainLayout.vue';
+import TextEditor from '@/components/TextEditor.vue';
+import { UrlItem } from '@/core/UrlItem';
+
+import type { FileItem } from '@/core/FileItem';
+
+import { useUrls } from '@/composables/useUrls';
+import UrlFormSection from '@/components/organisms/UrlFormSection.vue';
+
+import FilesFormSection from '@/components/organisms/FilesFormSection.vue';
+import { useFiles } from '@/composables/useFiles';
+
+import { useForm } from '@inertiajs/vue3';
+import { toast } from 'vue-sonner';
 
 defineOptions({ layout:MainLayout });
-const currentPage = usePage();
 
-const content = ref('');
-const mockUrl = ref<UrlItem[]>([]);
+const { listUrl, counterLabel, counterUrl, addUrl, removeUrl, clearUrlList } = useUrls();
+const { files, counterFiles, removeFile, setFiles, setTitle, clearFileList } = useFiles();
 
-const linkMessage = computed(() => {
-
-    let linkCount = mockUrl.value.length;
-
-    if(linkCount === 1) return `${linkCount} enlace agregado`;
-
-    return `${linkCount} enlaces agregados`;
-});
-
-const currentLink = ref({
+const form = useForm({
     title: '',
-    url: ''
+    content: '',
+    urls: [] as UrlItem[],
+    files: [] as { document: File, title: string, name:string, mime_type:string, sizeBytes:number }[]
 });
 
-function addLink(){
+function submitAnnouncement(){
 
-    if(currentLink.value.title.trim() === "" || currentLink.value.url.trim() === "") return;
+    const formIsValid:boolean = validateFormFields();
 
-    const newLink:UrlItem = {
-        internalId: crypto.randomUUID(),
-        title: currentLink.value.title,
-        url: currentLink.value.url
+    if(!formIsValid) return;
+
+    form.urls = listUrl.value;
+
+    form.files = files.value.map( file => ({
+        document: file.file,
+        title: file.title as string,
+        name: file.name,
+        mime_type: file.type,
+        sizeBytes: file.size
+    }));
+
+    console.log(form);
+    console.log(form.content);
+    clearForm();
+}
+
+function clearForm(){
+    form.title = '';
+    form.content = '';
+    clearFileList();
+    clearUrlList();
+}
+
+function validateFormFields():boolean {
+
+    if(form.title.trim() === ''){
+        toast.warning('El titulo del anuncio es obligatorio');
+        return false;
     }
 
+    if(form.content.trim() === ''){
+        toast.warning('El anuncio tiene que tener contenido');
+        return false;
+    }
 
-    mockUrl.value.push(newLink);
-    currentLink.value = { title: "", url: "" };
+    const invalidFile = files.value.find(f => !f.title || f.title.trim() === '');
+
+    if (invalidFile) {
+        toast.warning(`Debes asignarle un título al archivo: ${invalidFile.name}`);
+        return false;
+    }
+
+    return true;
 }
+
+
 </script>
 
 <template>
     <section class="flex flex-col gap-6">
         <div class="flex md:flex-col gap-6 items-start">
-            <Button variant="text">Regresar</Button>
+            <Button size="small" rounded>
+                <i class="ri-arrow-left-s-line"></i>
+                Volver
+            </Button>
             <h1 class="text-system-theme-900 text-4xl font-bold">Crear anuncio</h1>
         </div>
-        <section class="bg-green-200 border-2 border-accent w-full rounded-4xl p-4.5 max-w-340 flex flex-col">
-            <form class="flex flex-col lg:flex-row flex-1 min-h-0 gap-5">
-                <fieldset class="bg-red-200 w-full lg:w-7/10 flex flex-col gap-1 min-w-0 min-h-0 lg:max-h-160 lg:self-start">
+
+
+        <section class=" w-11/12 self-center rounded-4xl max-w-340 flex flex-col">
+            <form class="flex flex-col flex-1 min-h-0 gap-5" @submit.prevent="submitAnnouncement">
+                <fieldset class="bg-system-theme-200 border border-system-theme-300 w-full flex flex-col gap-5 min-w-0 min-h-0 h-140 lg:self-start shadow-card-1 rounded-2xl p-4 md:p-8">
                     <legend class="text-center sr-only">Anuncio principal</legend>
-                    <label class="w-1/2">
-                        <span class="block mb-2">Titulo del anuncio</span>
-                        <InputText fluid/>
+                    <label class="flex flex-col md:flex-row md:gap-5 items-center">
+                        <span class="block mb-2 shrink-0">Titulo del anuncio</span>
+                        <InputText fluid v-model="form.title"/>
                     </label>
 
                     <div class="flex-1 min-h-0 overflow-hidden flex flex-col">
-                        <span class="block mb-2">Contenido del anuncio</span>
-                        <div class="flex-1 min-h-0 overflow-y-auto">
-                            <TextEditor v-model="content"/>
+                        <span class="block mb-2 self-center">Contenido del anuncio</span>
+                        <div class="flex-1 min-h-0 md:w-8/9 overflow-y-auto md:self-center">
+                            <TextEditor v-model="form.content"/>
                         </div>
                     </div>
                 </fieldset>
 
-                <div class="flex flex-col flex-1">
-                    <fieldset class="bg-blue-200 self-start w-full">
-                        <legend class="sr-only">Links</legend>
-                        <span>Enlaces</span>
+                <div class="flex-1 min-h-0 flex flex-col">
+                    <Accordion value="0" class="bg-system-theme-200 rounded-lg border border-system-theme-300 overflow-hidden">
 
-                        <div class="flex gap-5 flex-col">
-                            <Label>
-                                <span>Titulo del enlace</span>
-                                <InputText fluid v-model="currentLink.title"/>
-                            </Label>
-                            <div class="flex gap-5">
-                                <label class="w-6/10">
-                                    <span>Link</span>
-                                    <InputText fluid v-model="currentLink.url"/>
-                                </label>
-                                <Button class="self-end" v-on:click="addLink">Agregar</Button>
-                            </div>
-                        </div>
+                        <AccordionPanel value="0">
+                            <AccordionHeader class="w-full flex justify-between bg-system-theme-300 p-4 border-b border-system-theme-400 overflow-hidden">
+                                <span>Enlaces ({{ counterUrl }})</span>
+                            </AccordionHeader>
+                            <AccordionContent>
+                                <UrlFormSection :items="listUrl" :count-label="counterLabel" v-on:add-url="addUrl" v-on:remove-url="removeUrl"/>
+                            </AccordionContent>
+                        </AccordionPanel>
 
-                        <div>
-                            <span v-if="mockUrl.length > 0">
-                                {{ linkMessage }}
-                                <LinkListDialog :urls="mockUrl"/>
-                            </span>
-                            <span v-else>
-                                Sin enlaces agregados
-                            </span>
 
-                        </div>
+                    <AccordionPanel value="1">
+
+                        <AccordionHeader>Archivos subidos ({{ files.length }})</AccordionHeader>
+                        <AccordionContent>
+                            <FilesFormSection
+                                :files="files"
+                                :file-counter="counterFiles"
+                                @update:files="setFiles"
+                                @update:title="setTitle"
+                                @remove="removeFile"
+                            />
+                        </AccordionContent>
+                    </AccordionPanel>
 
 
 
-
-                    </fieldset>
-
-                    <fieldset class="bg-pink-200 self-start w-full">
-                        <legend class="sr-only">Archivos</legend>
-                        <span>Archivos</span>
-
-                    </fieldset>
+                </Accordion>
                 </div>
 
-
+                <Button type="submit" :loading="form.processing">
+                    Crear anuncio
+                </Button>
             </form>
         </section>
 
     </section>
-    <div class="h-40 w-70 self-center">
-        <FileUpload/>
-    </div>
-
 </template>
 
 <style scoped>
-/* .p-editor-container {
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
-    min-width: 0 !important;
+
+:deep(.p-accordionheader){
+    background-color: var(--color-system-theme-300) !important;
+    color: var(--color-system-theme-950) !important;
 }
 
-.p-editor-content {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
+:deep(.p-accordioncontent-wrapper){
+    width: 100%;
+    min-width: 0;
+    overflow:hidden;
 }
 
-.ql-editor {
-    height: 100% !important;
-    overflow-y: auto !important;
-    word-break: break-all !important;
-    overflow-wrap: anywhere !important;
-} */
+:deep(.p-accordioncontent-content){
+    padding: 0 !important;
+    background-color: var(--color-system-theme-100);
+}
+
 </style>
