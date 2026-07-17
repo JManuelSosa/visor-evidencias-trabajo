@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 
+// Storage
+use App\Http\Controllers\FileStorage\FileUploadController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -62,6 +65,9 @@ Route::middleware('auth')->group(function() {
         Route::get('/perfil', function() {
             return Inertia::render('App/Profile');
         })->name('perfil');
+
+        Route::post('/api/uploads/presigned-url', [FileUploadController::class, 'presignedUrl']);
+        Route::post('/api/uploads/complete-status', [FileUploadController::class, 'completeUpload']);
     });
 
 });

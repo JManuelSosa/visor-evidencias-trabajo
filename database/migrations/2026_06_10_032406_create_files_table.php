@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('upload_id')->nullable()->index('idx_file_upload_id');
             $table->unsignedSmallInteger('total_parts')->nullable();
             $table->unsignedSmallInteger('uploaded_parts')->nullable();
-            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
 
             $table->index(['file_status', 'uploaded_at'], 'idx_file_status_date');
