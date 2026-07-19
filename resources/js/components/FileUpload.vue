@@ -1,135 +1,148 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { onUnmounted, watch } from 'vue';
+import { toast } from 'vue-sonner';
+import { useFileUploadQueue } from '@/composables/files/useFileUploadQueue';
 import type { FileItem } from '@/core/FileItem';
+import type { ContextType } from '@/core/files/ContextType';
 import { generateId } from '@/core/utils/GenerateID';
 
-const isDragging = ref(false);
-const dragCounter = ref(0);
+import FileUploadZone from './molecules/FileUploadZone.vue';
 
+interface Props {
+    modelValue?:FileItem[];
+    allowedTypes?:string[];
+    class?:string;
+    context:ContextType;
+    concurrency?:number;
+}
 
-const props = defineProps({
-    modelValue: {
-        type: Array as () => FileItem[],
-        default: () => []
-    },
-    allowedTypes: {
-        type: Array as () => string[],
-        default: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-    },
-    class: {
-        type: String,
-        default: ''
-    }
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: () => [],
+    allowedTypes: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
+    class: '',
+    concurrency:3
 });
 
-const emit = defineEmits(['update:modelValue', 'error']);
-const acceptAtributte = computed(() => props.allowedTypes.join(', '));
+const emit = defineEmits<{
+    'update:modelValue': [newFiles:FileItem[]];
+    'error': [message:string];
+}>();
 
-function isFileAllowed(file:File, allowedTypes:string[]):boolean {
+const queue = useFileUploadQueue(props.concurrency);
 
-    return allowedTypes.some(allowedType => {
+//Map para guardar los id de los toast
+const toastPool = new Map<string, string|number>();
 
-        if(allowedType.endsWith('/*')){
+async function handleFilesSelected(files:File[]):Promise<void> {
 
-            const category:string = allowedType.split('/')[0];
-            return file.type.startsWith(category + '/');
+    // Iniciar subidas
+    await queue.startUploads(files, props.context);
+
+    // Recopilar éxitos
+    const successfulFiles:FileItem[] = [];
+
+    queue.uploads.value.forEach(upload => {
+
+        if(upload.status === "success" && upload.fileId){
+
+            const currentFile:FileItem = {
+                id: generateId(),
+                fileId: upload.fileId,
+                file: upload.file,
+                name: upload.file.name,
+                size: upload.file.size,
+                type: upload.file.type,
+                title: ""
+            };
+
+            successfulFiles.push(currentFile);
         }
-
-        if(allowedType.includes('/')) return file.type === allowedType;
-
-        if(allowedType.startsWith('.')){
-            const extension:string = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-            return extension === allowedType.toLowerCase();
-        }
-
-        return false;
-    })
-}
-
-function addFiles(fileList:FileList|null):void {
-
-    if(!fileList || fileList.length === 0) return;
-
-    const validFiles:FileItem[] = [];
-
-    Array.from(fileList).forEach(file => {
-
-        if(!isFileAllowed(file, props.allowedTypes)){
-            emit('error', `El archivo "${file.name}" no es un tipo permitido`);
-            return;
-        }
-
-        validFiles.push({
-            id: generateId(),
-            file,
-            name: file.name,
-            size: file.size,
-            type: file.type
-        });
-
     });
 
-    if(validFiles.length > 0) emit('update:modelValue', [...props.modelValue, ...validFiles]);
+    if(successfulFiles.length > 0) emit('update:modelValue', [...props.modelValue, ...successfulFiles]);
+
+    // Limpieza diferida
+    setTimeout(() => {
+        queue.clearCompleted(); //Limpiar estados 'success'
+
+        // Limpieza segura del Map de toast
+        queue.uploads.value.forEach(upload => {
+            if(upload.status === 'success'){
+                toastPool.delete(upload.id);
+            }
+        });
+    }, 3000);
 }
 
-function handleDragEnter(e:DragEvent):void {
-    e.preventDefault();
-    dragCounter.value++;
-    isDragging.value = true;
+// Observar reactivamente cambios en la cola
+watch(() => queue.uploads.value, (uploads) => {
+
+    uploads.forEach(upload => {
+
+        // Si el toast ya fue destruido o no existe, se crea
+        let toastId = toastPool.get(upload.id);
+
+        if(!toastId && (upload.status === 'uploading' || upload.status === 'error')){
+            // Si por alguna razon se pierde el id lo recreamos
+            toastId = toast.loading(`${upload.fileName} - 0%`, { duration:Infinity });
+            toastPool.set(upload.id, toastId);
+        }
+
+        if(!toastId) return;
+
+        if(upload.status === "uploading"){
+            toast.loading(`${upload.fileName} - ${upload.progress.percentage}%`, { id:toastId });
+        }
+        else if(upload.status === "success"){
+            toast.success(`${upload.fileName} subido correctamente`, { id:toastId });
+            toastPool.delete(upload.id);
+        }
+        else if(upload.status === "error"){
+            toast.error(`${upload.fileName}: ${upload.error}`, {
+                id:toastId,
+                duration:Infinity,
+                action: {
+                    label:"Reintentar",
+                    onClick: () => handleRetry(upload.id)
+                }
+            });
+        }
+    });
+}, { deep:true });
+
+async function handleRetry(uploadId:string):Promise<void> {
+
+    const upload = queue.getUploadState(uploadId);
+    if(!upload) return;
+
+    // Actualizar el toast a "cargando" de nuevo
+    const toastId = toastPool.get(uploadId);
+
+    if(toastId){
+        toast.loading(`${upload.fileName} - 0%`, { id: toastId });
+    }
+
+    await queue.retryUpload(uploadId, props.context);
 }
 
-function handleDragLeave(e:DragEvent):void {
-    e.preventDefault();
-    dragCounter.value--;
-
-    if(dragCounter.value === 0) isDragging.value = false;
+function handleDropzoneError(message:string):void {
+    emit('error', message);
 }
 
-function handleDragOver(e:DragEvent):void {
-    e.preventDefault();
-}
-
-
-
-function handleDrop(e:DragEvent):void {
-    e.preventDefault();
-
-    dragCounter.value = 0;
-    isDragging.value = false;
-
-    if(e.dataTransfer?.files) addFiles(e.dataTransfer.files);
-}
-
+// Limpieza al desmotar el componente
+onUnmounted(() => {
+    toastPool.clear();
+});
 </script>
 
 <template>
-    <div
-        :class="['relative h-full w-full flex flex-col justify-center items-center rounded-md', props.class, {'bg-system-theme-100/50': isDragging}]",
-        @dragenter="handleDragEnter"
-        @dragover="handleDragOver"
-        @dragleave="handleDragLeave"
-        @drop="handleDrop"
-    >
-        <svg class="absolute inset-0 h-full w-full pointer-events-none">
-            <rect width="100%" height="100%" fill="none" class="transition-colors duration-200" :class="isDragging ? 'stroke-system-theme-800' : 'stroke-system-theme-400'" stroke-width="5" stroke-dasharray="12, 19" rx="10"/>
-        </svg>
-
-        <input
-            type="file"
-            multiple
-            class="absolute inset-0 h-full w-full opacity-0 cursor-pointer z-10"
-            @change="(e) => addFiles((e.target as HTMLInputElement).files)"
-            :accept="acceptAtributte"
-        >
-
-        <div class="flex flex-col items-center justify-center pointer-events-none z-0 text-system-theme-400" :class="{ 'text-system-theme-800': isDragging }">
-            <i class="ri-upload-cloud-line text-4xl transition-colors duration-200"></i>
-            <span class="block text-xs md:text-base font-medium transition-colors duration-200">
-                {{ isDragging ? '¡Suelta los archivos aquí' : 'Arrastra tu archivo aquí o haz click' }}
-            </span>
-        </div>
+    <div :class="['flex flex-col h-full w-full', props.class]">
+        <FileUploadZone
+            :allowed-types="allowedTypes"
+            :context="context"
+            @files-selected="handleFilesSelected"
+            @error="handleDropzoneError"
+        />
     </div>
 </template>
 
-<style scoped>
-</style>
