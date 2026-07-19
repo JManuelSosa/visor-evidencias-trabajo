@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { fileUploader } from "@/services/FileUploader";
 import type { ContextType } from "@/core/files/ContextType";
 import type { UploadProgress } from "@/core/files/UploadProgress";
+import { generateId } from "@/core/utils/GenerateID";
 
 /**
  * Composable para subir 1 único archivo
@@ -23,7 +24,10 @@ export function useFileUpload() {
         progress.value = { loaded:0, total:file.size, percentage:0 };
 
         try {
-            const fileId = await fileUploader.upload(file, context, {
+
+            const uploadId = generateId();
+
+            const fileId = await fileUploader.upload(file, context, uploadId, {
                 onProgress: (loaded, total) => {
                     progress.value = { loaded, total, percentage: total > 0 ? Math.round((loaded * 100) / total) : 0 }
                 }
@@ -32,7 +36,7 @@ export function useFileUpload() {
             return fileId;
         }
         catch (e:any) {
-            const errorMessage = e.reponse?.data?.message || e.message || "Error al subir el archivo";
+            const errorMessage = e.response?.data?.message || e.message || "Error al subir el archivo";
             error.value = errorMessage;
             return null;
         }

@@ -88,7 +88,7 @@ export function useFileUploadQueue(concurrency:number = 3) {
 
         try {
 
-            const fileId =  await fileUploader.upload(file, context, {
+            const fileId =  await fileUploader.upload(file, context, uploadId, {
                 onProgress: (loaded, total) => {
 
                     const percentage = total > 0 ? Math.round((loaded * 100) / total) : 0;

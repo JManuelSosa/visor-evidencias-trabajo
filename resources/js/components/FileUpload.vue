@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onUnmounted, watch } from 'vue';
+import { onUnmounted, watch, onBeforeUnmount } from 'vue';
 import { toast } from 'vue-sonner';
 import { useFileUploadQueue } from '@/composables/files/useFileUploadQueue';
 import type { FileItem } from '@/core/FileItem';
 import type { ContextType } from '@/core/files/ContextType';
 import { generateId } from '@/core/utils/GenerateID';
+import { useDirectUpload } from '@/composables/files/useDirectUpload.ts';
 
 import FileUploadZone from './molecules/FileUploadZone.vue';
 
@@ -128,6 +129,12 @@ async function handleRetry(uploadId:string):Promise<void> {
 function handleDropzoneError(message:string):void {
     emit('error', message);
 }
+
+const { cancelAllUploads } = useDirectUpload();
+
+onBeforeUnmount(() => {
+    cancelAllUploads();
+})
 
 // Limpieza al desmotar el componente
 onUnmounted(() => {
