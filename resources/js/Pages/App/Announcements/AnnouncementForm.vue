@@ -16,10 +16,14 @@ import { useFiles } from '@/composables/useFiles';
 import { useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 
+import { ContextType } from '@/core/files/ContextType';
+
 defineOptions({ layout:MainLayout });
 
 const { listUrl, counterLabel, counterUrl, addUrl, removeUrl, clearUrlList } = useUrls();
 const { files, counterFiles, removeFile, setFiles, setTitle, clearFileList } = useFiles();
+
+const context:ContextType = "announcement";
 
 const form = useForm({
     title: '',
@@ -129,6 +133,7 @@ function validateFormFields():boolean {
                             <FilesFormSection
                                 :files="files"
                                 :file-counter="counterFiles"
+                                :context="context"
                                 @update:files="setFiles"
                                 @update:title="setTitle"
                                 @remove="removeFile"

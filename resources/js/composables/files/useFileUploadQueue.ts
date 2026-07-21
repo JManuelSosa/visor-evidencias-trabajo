@@ -1,222 +1,247 @@
-import { ref, computed } from "vue";
+import { computed } from "vue";
+
+//* Composables
+import { useUploadTracker } from "./useUploadTracker";
+import { useUploadConcurrency, type UploadJob } from "./useUploadConcurrency";
+import { useUploadEvents } from "./useUploadEvents";
+
+//* Services
 import { fileUploader } from "@/services/FileUploader";
+
+//* Utils
 import { generateId } from "@/core/utils/GenerateID";
-import { ContextType } from "@/core/files/ContextType";
-import { UploadProgress } from "@/core/files/UploadProgress";
 
-type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
+//* Types
+import type { ContextType } from "@/core/files/ContextType";
+import type { UploadProgress } from "@/core/files/UploadProgress";
 
-interface UploadState {
-    id:string;
-    file:File;
-    fileName:string;
-    status:UploadStatus;
-    progress:UploadProgress;
-    error:string|null;
-    fileId:number|null;
+/**
+ * Orquestador que coordina los 4 composables/servicios para gestionar la subida concurrente de múltiples archivos.
+ *
+ * Responsabilidades:
+ * - Coordinar el flujo completo: tracker -> concurrency -> uploader -> events
+ * - Exponer api pública para el componente
+ * - Garantizar que los reintentos pasen por el pool de concurrencia
+ */
+
+// Funciones de API públicas
+
+/**
+ * Inicia la subida de múltiples archivos.
+ * Cada archivo se registra en el tracker y encola en el pool de concurrencia.
+ */
+function startUploads(files:File[], context:ContextType):string[] {
+
+    const uploadIds:string[] = [];
+
+    files.forEach((file) => {
+
+        const uploadId = generateId();
+        uploadIds.push(uploadId);
+
+        // Registrar en tracker
+        useUploadTracker.addUpload(uploadId, file);
+
+        // Crear Job con función execute que encapsula lógica
+        const job:UploadJob = {
+            uploadId,
+            file,
+            context,
+            execute: async() => {
+                await executeUpload(uploadId, file, context);
+            }
+        };
+
+        // Encolar en el pool de concurrencia global
+        useUploadConcurrency.enqueue(job);
+    });
+
+    return uploadIds;
 }
 
-interface FileInQueue {
-    file:File;
-    uploadId:string;
-}
+// Reintentar
 
-type EventCallback<T = any> = (data:T) => void;
-type EventListener = 'progress' | 'success' | 'error';
+/**
+ * Reintenta la subida de un archivo que faltó.
+ * Pasa por el pool de concurrencia (Sin saltarse la cola).
+ */
+function retryUpload(uploadId:string, context:ContextType):void {
 
-export function useFileUploadQueue(concurrency:number = 3) {
+    const upload = useUploadTracker.getUpload(uploadId);
+    if(!upload || upload.status !== 'error') return;
 
-    const uploads = ref<Map<string, UploadState>>(new Map());
+    // Resetear el estado a "pending"
+    useUploadTracker.updateUpload(uploadId, { status:"pending", error:null, progress:{
+        loaded: 0,
+        total: upload.file.size,
+        percentage: 0
+    }});
 
-    const eventListeners = {
-        progress: new Map<string, EventCallback<UploadProgress>>(),
-        success: new Map<string, EventCallback<number>>(),
-        error: new Map<string, EventCallback<string>>()
+    // Crear job y reencolar con prioridad
+    const job:UploadJob = {
+        uploadId,
+        file: upload.file,
+        context,
+        execute: async() => {
+            await executeUpload(uploadId, upload.file, context);
+        }
     };
 
-    /**
-     * Worker pool: Sube múltiples archivos en paralelo con límite de concurrencia
-     */
-    async function startUploads(files:File[], context:ContextType):Promise<void> {
+    useUploadConcurrency.enqueuePriority(job);
+}
 
-        const queue:FileInQueue[] = files.map((file) => ({ file, uploadId:generateId() }));
+// Descartar
 
-        queue.forEach(({ file, uploadId }) => {
+/**
+ * Descarta un upload específico (útil para errores que el usuario ignora).
+ * Eliminar del tracker y limpia suscripciones a eventos
+ */
+function discardUpload(uploadId:string):void {
+    useUploadTracker.discardUpload(uploadId);
+    useUploadEvents.unsubscribeAll(uploadId);
+}
 
-            const currentFile:UploadState = {
-                id: uploadId,
-                file:file,
-                fileName: file.name,
-                status: "pending",
-                progress: { loaded: 0, total: file.size, percentage: 0 },
-                error: null,
-                fileId: null
-            };
+// Cancelación
 
-            uploads.value.set(uploadId, currentFile);
-        });
+/**
+ * Cancela todos los upload activos.
+ * Delega al tracker que aborta todos los AbortControllers
+ */
+function cancelAll():void {
+    useUploadTracker.cancelAll();
+    useUploadConcurrency.clearQueue();
+}
 
-        // Crear Workers
-        const workers = Array.from({ length:Math.min(concurrency, queue.length) }, () => processQueue(queue, context));
+/**
+ * Cancela un upload específico por su id
+ */
+function cancelUpload(uploadId:string):void {
+    useUploadTracker.cancelUpload(uploadId);
+}
 
-        await Promise.all(workers);
-    }
+// Estado reactivo
 
+/**
+ * Expone el estado reactivo de todos los uploads.
+ */
+const uploads = computed(() => useUploadTracker.uploads.value);
 
-    /**
-     * Worker individual procesa la cola
-     */
-    async function processQueue(queue:FileInQueue[], context:ContextType):Promise<void> {
+// Suscripción a eventos
 
-        while(queue.length > 0) {
+/**
+ * Se suscribe a eventos de progreso de un upload específico.
+ * @returns Función de unsuscribe para limpiar la suscripción
+ */
+function onProgress(uploadId:string, callback:(progress:UploadProgress) => void):() => void {
+    return useUploadEvents.onProgress(uploadId, callback);
+}
 
-            const item = queue.shift();
-            if(!item) break;
+/**
+ * Se suscribe a eventos de éxito en un upload específico.
+ * @returns Función de unsubscribe para limpiar la suscripción
+ */
+function onSuccess(uploadId:string, callback:(fileId:number) => void):() => void {
+    return useUploadEvents.onSuccess(uploadId, callback);
+}
 
-            const { file, uploadId } = item;
-            await uploadSingleFile(file, uploadId, context);
-        }
+/**
+ * Se suscribe a eventos de error de un upload específico
+ * @returns Función de unsubscribe para limpiar la suscripción.
+ */
+function onError(uploadId:string, callback:(errorMessage:string) => void):() => void {
+    return useUploadEvents.onError(uploadId, callback);
+}
 
-    }
+// Limpieza
+/**
+ * Limpia uploads completados (success o error del tracker).
+ * Útil para liberar memoria después de que el usuario ve los toast
+ */
+function clearCompleted():void {
+    useUploadTracker.clearCompleted();
+}
 
-    /**
-     * Función para subir un archivo individual y actualizar su estado
-     */
-    async function uploadSingleFile(file:File, uploadId:string, context:ContextType):Promise<void> {
+/**
+ * Logica interna: Ejecutar subida
+ * Esta función es llamada por el worker pool
+ */
+async function executeUpload(uploadId:string, file:File, context:ContextType):Promise<void> {
 
-        updateUploadState(uploadId, { status: 'uploading' });
+    // Verifica si fue cancelado antes de empezar
+    const currentUpload = useUploadTracker.getUpload(uploadId);
 
-        try {
+    if(!currentUpload || currentUpload.status === "error") return;
 
-            const fileId =  await fileUploader.upload(file, context, uploadId, {
-                onProgress: (loaded, total) => {
+    // Actualizar estado a uploading
+    useUploadTracker.updateUpload(uploadId, { status:"uploading" });
 
-                    const percentage = total > 0 ? Math.round((loaded * 100) / total) : 0;
+    try {
 
-                    updateUploadState(uploadId, { progress: { loaded, total, percentage } });
-                    emitEvent('progress', uploadId, { loaded, total, percentage });
-                }
+        // Obtener signal del tracker para la cancelación
+        const signal = useUploadTracker.getSignal(uploadId);
+
+        if(!signal) throw new Error('AbortSignal no encontrado para uploadId: ' + uploadId);
+
+        const fileId = await fileUploader.upload(file, context, signal, (loaded, total) => {
+
+            // Actualizar progreso en tracker
+            const percentage = total > 0 ? Math.round((loaded * 100) / total) : 0;
+            useUploadTracker.updateUpload(uploadId, {
+                progress: { loaded, total, percentage }
             });
 
-            updateUploadState(uploadId, {
-                status: 'success',
-                fileId
-            });
-
-            emitEvent('success', uploadId, fileId);
-        }
-        catch (e:any) {
-            const errorMessage = e.response?.data?.message || e.message || "Error al subir el archivo";
-
-            updateUploadState(uploadId, {
-                status: 'error',
-                error: errorMessage
-            });
-
-            emitEvent('error', uploadId, errorMessage);
-        }
-    }
-
-    /**
-     * Función para reintentar la subida de archivo que falló
-     */
-    async function retryUpload(uploadId:string, context:ContextType):Promise<void> {
-
-        const state = uploads.value.get(uploadId);
-        if(!state || state.status !== 'error') return;
-
-        updateUploadState(uploadId, {
-            status: "pending",
-            error: null,
-            progress: { loaded: 0, total: state.file.size, percentage: 0 }
+            // Emitir evento de progreso
+            useUploadEvents.emitProgress(uploadId, { loaded, total, percentage });
         });
 
-        await uploadSingleFile(state.file, uploadId, context);
-    }
+        // Actualizar estado a success
+        useUploadTracker.updateUpload(uploadId, { status:"success", fileId });
 
+        // Emitir evento de éxito
+        useUploadEvents.emitSuccess(uploadId, fileId);
 
-    /**
-     * Actualiza el estado de un upload específico
-     */
-    function updateUploadState(uploadId:string, updates:Partial<UploadState>):void {
+    } catch(error:any) {
 
-        const current = uploads.value.get(uploadId);
-
-        if(current){
-            uploads.value.set(uploadId, { ...current, ...updates });
-            uploads.value = new Map(uploads.value); // Trigger reactivity
+        // Manejar error de cancelación
+        if(error.message === 'UPLOAD_CANCELED'){
+            useUploadTracker.updateUpload(uploadId, { status:"error", error:"Subida cancelada por el usuario" });
+            useUploadEvents.emitError(uploadId, "Subida cancelada por el usuario");
+            return;
         }
-    }
 
-    /**
-     * Obtener el estado de un upload específico
-     */
-    function getUploadState(uploadId:string):UploadState|undefined {
-        return uploads.value.get(uploadId);
-    }
+        // Manejar error de expiración de URL (403)
+        if(error.response?.status === 403){
+            const errorMessage:string = "El enlace de subida expiró. Por favor intenta de nuevo.";
+            useUploadTracker.updateUpload(uploadId, { status:'error', error:errorMessage });
+            useUploadEvents.emitError(uploadId, errorMessage);
+            return;
+        }
 
-    /**
-     * Emitir eventos a los listeners
-     */
-
-    /**
-     * Contratos de uso
-     */
-    function emitEvent(type:'progress', uploadId:string, data:UploadProgress):void;
-    function emitEvent(type:'success', uploadId:string, data:number):void;
-    function emitEvent(type:'error', uploadId:string, data:string):void;
-    /**
-     * Implementación
-     */
-    function emitEvent<T>(type:EventListener, uploadId:string, data:T) {
-        const callback = eventListeners[type].get(uploadId) as EventCallback<T> | undefined;
-        if(callback) callback(data);
-    }
-
-
-    /**
-     * Funciones para suscribirse a eventos de un upload específico
-     */
-    function onProgress(uploadId:string, callback:EventCallback<UploadProgress>):() => void {
-        eventListeners.progress.set(uploadId, callback);
-        return () => eventListeners.progress.delete(uploadId);
-    }
-
-    function onSuccess(uploadId:string, callback:EventCallback<number>):() => void {
-        eventListeners.success.set(uploadId, callback);
-        return () => eventListeners.success.delete(uploadId);
-    }
-
-    function onError(uploadId:string, callback:EventCallback<string>):() => void {
-        eventListeners.error.set(uploadId, callback);
-        return () => eventListeners.error.delete(uploadId);
-    }
-
-    /**
-     * Función helper para limpiar uploads completados
-     */
-    function clearCompleted():void {
-        const active = new Map<string, UploadState>();
-
-        uploads.value.forEach((state, key) => {
-
-            if(state.status === "uploading" || state.status === "error"){
-                active.set(key, state);
-            }
-
-        });
-
-        uploads.value = active;
-    }
-
-    return {
-        uploads: computed(() => Array.from(uploads.value.values())),
-        startUploads,
-        retryUpload,
-        getUploadState,
-        onProgress,
-        onSuccess,
-        onError,
-        clearCompleted
+        // Otros errores
+        const errorMessage = error.response?.data?.message || error.message || "Error al el subir archivo";
+        useUploadTracker.updateUpload(uploadId, { status:'error', error: errorMessage });
+        useUploadEvents.emitError(uploadId, errorMessage);
     }
 }
+
+export const useFileUploadQueue = {
+    // Estado reactivo
+    uploads,
+
+    // Gestion de subidas
+    startUploads,
+    retryUpload,
+    discardUpload,
+
+    // Cancelación
+    cancelAll,
+    cancelUpload,
+
+    // Suscripción a eventos
+    onProgress,
+    onSuccess,
+    onError,
+
+    // Limpieza
+    clearCompleted
+};
