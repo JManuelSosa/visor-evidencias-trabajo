@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { ContextType } from '@/core/files/ContextType';
-import { toByteSize } from '@/core/utils/FormatByteSize';
+import { toByteSize, formatByteSize } from '@/core/utils/FormatByteSize';
 
 interface Props {
     allowedTypes?:string[];
@@ -50,7 +50,7 @@ function isValidFile(file:File):boolean {
     }
 
     if(file.size > props.maxSize){
-        emit('error', `El archivo "${file.name}" excede el tamaño máximo de 1GB`);
+        emit('error', `El archivo "${file.name}" excede el tamaño máximo de "${formatByteSize(props.maxSize)}"`);
         return false;
     }
 

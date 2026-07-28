@@ -29,6 +29,22 @@ const { handleFilesSelected, handleRetry, handleDiscard, handleDropzoneError } =
     emit('update:modelValue', [...props.modelValue, newFile]);
 });
 
+// function testErrorToast(){
+//     toast.custom(
+//         (t) => h(FileErrorToast, {
+//             filename: "documento_muy_pesado_y_largo_nombre.pdf",
+//             errorMessage: "El enlace de subida expiró. Por favor, intenta de nuevo.",
+//             onRetry: () => {
+//                 console.log("Reintentando...");
+//             },
+//             onCancel: () => {
+//                 console.log("Descartando...");
+//             }
+//         }),
+//         { duration: Infinity }
+//     );
+// }
+
 </script>
 
 <template>

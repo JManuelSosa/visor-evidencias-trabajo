@@ -1,1 +1,1 @@
-export type ContextType = 'announcement' | 'evidences' | 'profiles';
+export type ContextType = 'announcement' | 'evidence' | 'profile';

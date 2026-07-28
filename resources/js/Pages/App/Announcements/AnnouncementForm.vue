@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { Button, InputText, Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primevue';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import TextEditor from '@/components/TextEditor.vue';
@@ -17,6 +16,7 @@ import { useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 
 import { ContextType } from '@/core/files/ContextType';
+import { useUploadTracker } from '@/composables/files/useUploadTracker';
 
 defineOptions({ layout:MainLayout });
 
@@ -74,8 +74,15 @@ function validateFormFields():boolean {
 
     const invalidFile = files.value.find(f => !f.title || f.title.trim() === '');
 
-    if (invalidFile) {
+    if(invalidFile) {
         toast.warning(`Debes asignarle un título al archivo: ${invalidFile.name}`);
+        return false;
+    }
+
+    const activeUploads = useUploadTracker.getActiveUploads();
+
+    if(activeUploads.length > 0){
+        toast.warning('Aún hay archivos en proceso de subida, debes esperar a que terminen');
         return false;
     }
 

@@ -1,4 +1,4 @@
-import { onBeforeUnmount } from "vue";
+import { onBeforeUnmount, h } from "vue";
 import { toast } from 'vue-sonner';
 
 //* Composables
@@ -9,6 +9,9 @@ import { useUploadEvents } from "@/composables/files/useUploadEvents";
 //* Types
 import type { FileItem } from "@/core/FileItem";
 import type { ContextType } from "@/core/files/ContextType";
+
+//* CustomToast
+import FileErrorToast from "@/components/atoms/FileErrorToast.vue";
 
 /**
  * Composable que gestiona la UI de toast para las subidas de archivos.
@@ -75,20 +78,25 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
             // Error
             const errorEvent = useUploadEvents.onError(uploadId, (errorMessage) => {
                 const tId = toastPool.get(uploadId);
+
                 if(tId){
-                    toast.error(`${upload.fileName}: ${errorMessage}`, {
-                        id:tId,
-                        duration:Infinity,
-                        action: {
-                            label:"Reintentar",
-                            onClick: () => handleRetry(uploadId, context)
+                    toast.custom((toastId) => h(FileErrorToast, {
+                        filename: upload.fileName,
+                        errorMessage: errorMessage,
+                        onRetry: () => {
+                            handleRetry(uploadId, context);
+                        },
+                        onCancel: () => {
+                            handleDiscard(uploadId);
                         }
+                    }), {
+                        id:tId,
+                        duration:Infinity
                     });
                 }
             });
 
             unsubs.push(errorEvent);
-
             unsubscribers.set(uploadId, unsubs);
         });
 
