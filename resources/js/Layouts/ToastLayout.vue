@@ -4,6 +4,6 @@ import 'vue-sonner/style.css'
 </script>
 
 <template>
-    <Toaster position="top-center" richColors closeButton closeButtonPosition="top-right"/>
+    <Toaster position="top-center" richColors closeButton closeButtonPosition="top-right" :expand="true" :visibleToasts="5"/>
     <slot></slot>
 </template>

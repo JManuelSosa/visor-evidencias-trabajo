@@ -10,6 +10,7 @@ import { fileUploader } from "@/services/FileUploader";
 
 //* Utils
 import { generateId } from "@/core/utils/GenerateID";
+import { mapR2Error } from "@/core/files/MapR2Error";
 
 //* Types
 import type { ContextType } from "@/core/files/ContextType";
@@ -202,23 +203,8 @@ async function executeUpload(uploadId:string, file:File, context:ContextType):Pr
 
     } catch(error:any) {
 
-        // Manejar error de cancelación
-        if(error.message === 'UPLOAD_CANCELED'){
-            useUploadTracker.updateUpload(uploadId, { status:"error", error:"Subida cancelada por el usuario" });
-            useUploadEvents.emitError(uploadId, "Subida cancelada por el usuario");
-            return;
-        }
+        const errorMessage:string = mapR2Error(error);
 
-        // Manejar error de expiración de URL (403)
-        if(error.response?.status === 403){
-            const errorMessage:string = "El enlace de subida expiró. Por favor intenta de nuevo.";
-            useUploadTracker.updateUpload(uploadId, { status:'error', error:errorMessage });
-            useUploadEvents.emitError(uploadId, errorMessage);
-            return;
-        }
-
-        // Otros errores
-        const errorMessage = error.response?.data?.message || error.message || "Error al el subir archivo";
         useUploadTracker.updateUpload(uploadId, { status:'error', error: errorMessage });
         useUploadEvents.emitError(uploadId, errorMessage);
     }

@@ -1,5 +1,4 @@
-import { usePresignedUrl } from "@/composables/files/usePresignedUrl";
-import { uploadToR2 } from "./DirectUpload";
+import { presignedUrlService, uploadToR2 } from "./factories/fileUploadFactory";
 import { ContextType } from "@/core/files/ContextType";
 
 /**
@@ -13,8 +12,6 @@ import { ContextType } from "@/core/files/ContextType";
 
 export class FileUploader {
 
-    private presignedUrlService = usePresignedUrl();
-
     /**
      * Sube un archivo completo a R2
      * @param file - Archivo a subir
@@ -27,7 +24,7 @@ export class FileUploader {
     async upload(file:File, context:ContextType, signal:AbortSignal, onProgress?:(loaded:number, total:number) => void):Promise<number> {
 
         // Obtener url firmada del servidor
-        const { file_id, upload_url, headers } = await this.presignedUrlService.getPresignedUrl(file.name, file.type, file.size, context);
+        const { file_id, upload_url, headers } = await presignedUrlService.getPresignedUrl(file.name, file.type, file.size, context);
 
         // Subir a R2
         await uploadToR2(file, upload_url, headers, signal, onProgress);
