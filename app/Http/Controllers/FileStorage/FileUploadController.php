@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 //* FormRequest
-use App\Http\Requests\FileRequest;
+use App\Http\Requests\FileStorage\FileRequest;
 
 //* UseCases
 use App\Services\UseCases\FileUploadUseCase;

@@ -28,8 +28,8 @@ function formatSize(bytes:number):string {
     <i class="ri-file-line text-2xl md:text-4xl text-system-theme-400 block shrink-0"></i>
     <div class="flex flex-col flex-1 gap-1.5 min-w-0">
         <div class="flex flex-col min-w-0">
-            <label :for="file.id">Titulo del archivo</label>
-            <InputText fluid :id="`file-${file.id}`" size="small" :modelValue="file.title" @update:modelValue="(currentText) => emit('update:title', file.id, currentText ?? '')"/>
+            <label :for="`input-title-${file.id}`">Titulo del archivo</label>
+            <InputText fluid :id="`input-title-${file.id}`" size="small" :modelValue="file.title || ''" @update:modelValue="(currentText) => emit('update:title', file.id, currentText ?? '')"/>
         </div>
         <div class="flex min-w-0 gap-3">
             <span class="text-sm font-medium text-system-theme-900 truncate">

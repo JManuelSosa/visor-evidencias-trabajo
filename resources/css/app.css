@@ -6,6 +6,9 @@
 
 @theme {
 
+    /* Breakpoint */
+    --breakpoint-xs: 32rem;
+
     /* Body */
     --font-sans: 'Open Sans Variable', ui-sans-serif, system-ui, sans-serif;
 

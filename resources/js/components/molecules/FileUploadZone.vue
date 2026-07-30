@@ -1,29 +1,61 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { FileItem } from '@/core/FileItem';
-import { generateId } from '@/core/utils/GenerateID';
+import type { ContextType } from '@/core/files/ContextType';
+import { toByteSize, formatByteSize } from '@/core/utils/FormatByteSize';
+
+interface Props {
+    allowedTypes?:string[];
+    maxSize?:number;
+    class?:string;
+    context:ContextType;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: () => [],
+    allowedTypes: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
+    maxSize: toByteSize(1,"GB"),
+    class: '',
+});
 
 const isDragging = ref(false);
 const dragCounter = ref(0);
 
-
-const props = defineProps({
-    modelValue: {
-        type: Array as () => FileItem[],
-        default: () => []
-    },
-    allowedTypes: {
-        type: Array as () => string[],
-        default: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-    },
-    class: {
-        type: String,
-        default: ''
-    }
-});
-
-const emit = defineEmits(['update:modelValue', 'error']);
+const emit = defineEmits<{
+    'files-selected':[files:File[]];
+    'error': [message:string];
+}>();
 const acceptAtributte = computed(() => props.allowedTypes.join(', '));
+
+function addFiles(fileList:FileList|null):void {
+
+    if(!fileList || fileList.length === 0) return;
+
+    const validFiles:File[] = [];
+
+    Array.from(fileList).forEach(file => {
+
+        if(!isValidFile(file)) return;
+
+        validFiles.push(file);
+    });
+
+    if(validFiles.length > 0) emit('files-selected', validFiles);
+}
+
+function isValidFile(file:File):boolean {
+
+    if(!isFileAllowed(file, props.allowedTypes)){
+        emit('error', `El archivo "${file.name}" no es un tipo permitido`);
+        return false;
+    }
+
+    if(file.size > props.maxSize){
+        emit('error', `El archivo "${file.name}" excede el tamaño máximo de "${formatByteSize(props.maxSize)}"`);
+        return false;
+    }
+
+    return true;
+}
 
 function isFileAllowed(file:File, allowedTypes:string[]):boolean {
 
@@ -46,32 +78,6 @@ function isFileAllowed(file:File, allowedTypes:string[]):boolean {
     })
 }
 
-function addFiles(fileList:FileList|null):void {
-
-    if(!fileList || fileList.length === 0) return;
-
-    const validFiles:FileItem[] = [];
-
-    Array.from(fileList).forEach(file => {
-
-        if(!isFileAllowed(file, props.allowedTypes)){
-            emit('error', `El archivo "${file.name}" no es un tipo permitido`);
-            return;
-        }
-
-        validFiles.push({
-            id: generateId(),
-            file,
-            name: file.name,
-            size: file.size,
-            type: file.type
-        });
-
-    });
-
-    if(validFiles.length > 0) emit('update:modelValue', [...props.modelValue, ...validFiles]);
-}
-
 function handleDragEnter(e:DragEvent):void {
     e.preventDefault();
     dragCounter.value++;
@@ -88,8 +94,6 @@ function handleDragLeave(e:DragEvent):void {
 function handleDragOver(e:DragEvent):void {
     e.preventDefault();
 }
-
-
 
 function handleDrop(e:DragEvent):void {
     e.preventDefault();
@@ -131,5 +135,3 @@ function handleDrop(e:DragEvent):void {
     </div>
 </template>
 
-<style scoped>
-</style>

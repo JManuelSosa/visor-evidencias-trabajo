@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import FileItemList from '../molecules/FileItemList.vue';
-import FileUpload from '../FileUpload.vue';
-
-import { toast } from 'vue-sonner';
+import { FileUpload } from './FileUpload';
 import { FileItem } from '@/core/FileItem.ts';
+import { ContextType } from '@/core/files/ContextType.ts';
 
 const props = defineProps<{
     files:FileItem[],
-    fileCounter:number
+    fileCounter:number,
+    context:ContextType
 }>();
 
 const emit = defineEmits<{
@@ -16,9 +16,6 @@ const emit = defineEmits<{
     'update:title': [id:string, title:string]
 }>();
 
-function handleUploadError(message:string){
-    toast.error(message);
-}
 
 </script>
 
@@ -27,7 +24,7 @@ function handleUploadError(message:string){
     <legend class="sr-only">Archivos</legend>
 
     <div class="min-h-60 h-60 w-full min-w-0 md:h-auto flex md:flex-1 bg-neutral-100">
-        <FileUpload v-bind:model-value="files" @update:model-value="(newFiles) => emit('update:files', newFiles)" @error="handleUploadError" class="min-w-0!"/>
+        <FileUpload v-bind:model-value="files" :context="context" @update:model-value="(newFiles) => emit('update:files', newFiles)" class="min-w-0!"/>
     </div>
 
     <div class="w-full min-w-0 md:w-4/10 flex flex-col gap-5">
