@@ -49,8 +49,8 @@ function submitAnnouncement(){
     }));
 
     console.log(form);
-    console.log(form.content);
-    clearForm();
+    // console.log(form.content);
+    // clearForm();
 }
 
 function clearForm(){

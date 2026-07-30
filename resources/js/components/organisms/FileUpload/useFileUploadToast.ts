@@ -13,6 +13,9 @@ import type { ContextType } from "@/core/files/ContextType";
 //* CustomToast
 import FileErrorToast from "@/components/atoms/FileErrorToast.vue";
 
+//* Utils
+import { uploadCancelByUserMsg } from "@/core/files/MapR2Error";
+
 /**
  * Composable que gestiona la UI de toast para las subidas de archivos.
  */
@@ -33,7 +36,7 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
             const upload = useUploadTracker.getUpload(uploadId);
             if(!upload) return;
 
-            const toastId = toast.loading(`${upload.fileName} - Cargando archivo..`, { duration:Infinity });
+            const toastId = toast.loading(`${upload.fileName} - Cargando archivo..`, { duration:Infinity, position:'bottom-right' });
             toastPool.set(uploadId, toastId);
 
             const unsubs:(() => void)[] = [];
@@ -51,8 +54,12 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
             // Éxito
             const successEvent = useUploadEvents.onSuccess(uploadId, (fileId) => {
                 const tId = toastPool.get(uploadId);
+
                 if(tId){
-                    toast.success(`${upload.fileName} cargado correctamente`, { id:tId });
+
+                    toast.dismiss(tId);
+
+                    toast.success(`${upload.fileName} cargado correctamente`, { duration:3000 });
                     toastPool.delete(uploadId);
                 }
 
@@ -77,7 +84,24 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
 
             // Error
             const errorEvent = useUploadEvents.onError(uploadId, (errorMessage) => {
+
                 const tId = toastPool.get(uploadId);
+
+                if(errorMessage === uploadCancelByUserMsg){
+
+                    toast.dismiss(tId);
+
+                    toast.info(`${upload.fileName}: Subida cancelada`, {
+                        id: uploadId,
+                        duration: 3000
+                    });
+
+                    useUploadTracker.discardUpload(uploadId);
+                    useUploadEvents.unsubscribeAll(uploadId);
+
+                    return;
+                }
+
 
                 if(tId){
                     toast.custom((toastId) => h(FileErrorToast, {
@@ -107,10 +131,20 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
         const upload = useUploadTracker.getUpload(uploadId);
         if(!upload) return;
 
-        const toastId = toastPool.get(uploadId);
-        if(toastId){
-            toast.loading(`${upload.fileName} - Reintentado...`, { id:toastId });
+        const oldToastId = toastPool.get(uploadId);
+
+        if(oldToastId){
+            toast.dismiss(oldToastId);
         }
+
+        // 2. Crear un NUEVO toast de loading (sin ID específico)
+        const newToastId = toast.loading(`${upload.fileName} - 0%`, {
+            duration: Infinity,
+            position: 'bottom-right'
+        });
+
+        // 3. Actualizar el toastPool con el nuevo ID
+        toastPool.set(uploadId, newToastId);
 
         useFileUploadQueue.retryUpload(uploadId, context);
     }
@@ -136,10 +170,16 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
     }
 
     onBeforeUnmount(() => {
+        useFileUploadQueue.cancelAll();
+
+        unsubscribers.forEach((_, uploadId) => {
+            const tId = toastPool.get(uploadId);
+            toast.dismiss(tId);
+        });
+
         unsubscribers.forEach((unsubs) => unsubs.forEach(unsub => unsub()));
         unsubscribers.clear();
         toastPool.clear();
-        useFileUploadQueue.cancelAll();
     });
 
     return {

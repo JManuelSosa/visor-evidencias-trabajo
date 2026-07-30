@@ -10,7 +10,7 @@ import { fileUploader } from "@/services/FileUploader";
 
 //* Utils
 import { generateId } from "@/core/utils/GenerateID";
-import { mapR2Error } from "@/core/files/MapR2Error";
+import { mapR2Error, uploadCancelByUserMsg } from "@/core/files/MapR2Error";
 
 //* Types
 import type { ContextType } from "@/core/files/ContextType";
@@ -109,8 +109,14 @@ function discardUpload(uploadId:string):void {
  * Delega al tracker que aborta todos los AbortControllers
  */
 function cancelAll():void {
+    const activeUploads = useUploadTracker.getActiveUploads();
+
     useUploadTracker.cancelAll();
     useUploadConcurrency.clearQueue();
+
+    activeUploads.forEach(upload => {
+        useUploadEvents.emitError(upload.id, uploadCancelByUserMsg);
+    });
 }
 
 /**
