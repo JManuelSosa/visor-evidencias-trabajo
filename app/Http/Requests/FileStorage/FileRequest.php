@@ -9,9 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 //* Enums
 use App\Enums\FolderR2;
+use App\Enums\DataUnit;
+
+//* Value objects
+use App\ValueObjects\DataSize;
 
 class FileRequest extends FormRequest
 {
+
+    private ?DataSize $maxSize;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,6 +34,9 @@ class FileRequest extends FormRequest
      */
     public function rules(): array
     {
+        $dataSize = $this->getMaxSize();
+        $size = $dataSize->toBytes()->getSize();
+
         return [
             "filename" => ["required", "string", "max:255"],
             "mime_type" => ["required", "string", Rule::in([
@@ -44,13 +54,17 @@ class FileRequest extends FormRequest
                 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                 'application/vnd.ms-powerpoint'
             ])],
-            "size" => ["required", "integer", "min:1", "max:1073741824"],
+            "size" => ["required", "integer", "min:1", "max:$size"],
             "context" => ["required", "string", Rule::in(FolderR2::values())]
         ];
     }
 
-    public function messages()
-    {
+    public function messages():array {
+
+        $dataSize = $this->getMaxSize();
+
+        $formatSize = $dataSize->format(0);
+
         return [
             "filename.required" => "El nombre del archivo es obligatorio",
             "filename.string" => "El nombre del archivo debe ser texto",
@@ -63,11 +77,17 @@ class FileRequest extends FormRequest
             "size.required" => "El tamaño total del archivo es requerido",
             "size.integer" => "El valor del tamaño del archivo debe ser numérico",
             "size.min" => "El tamaño del archivo debe ser de al menos :min bytes",
-            "size.max" => "El tamaño del archivo no puede ser ser mayor a 1 GB",
+            "size.max" => "El tamaño del archivo no puede ser ser mayor a $formatSize",
 
             "context.required" => "La categoria de archivo es requerida (Anuncio, Evidencia de trabajo, etc)",
             "context.string" => "La categoría de archivo debe ser un texto",
             "context.in" => "La categoria del archivo ingresada no esta permitida"
         ];
     }
+
+    private function getMaxSize():DataSize {
+        if($this->maxSize === null) return new DataSize(500, DataUnit::MB);
+        return $this->maxSize;
+    }
+
 }
