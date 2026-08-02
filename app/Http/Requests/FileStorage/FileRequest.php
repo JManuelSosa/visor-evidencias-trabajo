@@ -17,7 +17,7 @@ use App\ValueObjects\DataSize;
 class FileRequest extends FormRequest
 {
 
-    private ?DataSize $maxSize;
+    private ?DataSize $maxSize = null;
 
     /**
      * Determine if the user is authorized to make this request.

@@ -67,7 +67,6 @@ Route::middleware('auth')->group(function() {
         })->name('perfil');
 
         Route::post('/api/uploads/presigned-url', [FileUploadController::class, 'presignedUrl']);
-        Route::post('/api/uploads/complete-status', [FileUploadController::class, 'completeUpload']);
     });
 
 });

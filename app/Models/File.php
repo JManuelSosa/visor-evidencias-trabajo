@@ -28,17 +28,12 @@ class File extends Model
         'file_type',
         'uploaded_by',
         'file_status',
-        'upload_id',
-        'total_parts',
-        'uploaded_parts',
     ];
 
     protected $casts = [
         'file_size_bytes' => 'integer',
         'uploaded_at' => 'datetime',
         'file_status' => FileStatus::class,
-        'total_parts' => 'integer',
-        'uploaded_parts' => 'integer',
     ];
 
     public function person():HasOne {

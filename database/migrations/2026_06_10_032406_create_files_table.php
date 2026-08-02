@@ -24,9 +24,6 @@ return new class extends Migration
 
             // Campos nuevos
             $table->enum('file_status', FileStatus::values())->default(FileStatus::Pending->value)->index('idx_file_status');
-            $table->string('upload_id')->nullable()->index('idx_file_upload_id');
-            $table->unsignedSmallInteger('total_parts')->nullable();
-            $table->unsignedSmallInteger('uploaded_parts')->nullable();
             $table->timestamps();
 
             $table->index(['file_status', 'uploaded_at'], 'idx_file_status_date');
