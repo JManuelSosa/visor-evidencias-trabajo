@@ -25,7 +25,7 @@ const emit = defineEmits<{
     'update:modelValue': [newFiles:FileItem[]];
 }>();
 
-const { handleFilesSelected, handleRetry, handleDiscard, handleDropzoneError } = useFileUploadToast((newFile) => {
+const { handleFilesSelected, handleDropzoneError } = useFileUploadToast((newFile) => {
     emit('update:modelValue', [...props.modelValue, newFile]);
 });
 
