@@ -49,11 +49,15 @@ Route::middleware('auth')->group(function() {
         Route::prefix('/anuncios')->group(function(){
             Route::get('/', function() {
                 return Inertia::render('App/Announcements/Announcement');
-            })->name('anuncios');
+            })->name('index');
 
             Route::get('/agregar', function() {
                 return Inertia::render('App/Announcements/AnnouncementForm');
-            })->name('anuncios');
+            })->name('create');
+
+            Route::post('/agregar', function(){
+                return "Hola mundo";
+            })->name('store');
         });
 
 
