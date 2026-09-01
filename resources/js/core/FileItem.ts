@@ -1,9 +1,9 @@
 export interface FileItem {
-    id:string;
-    fileId?:number;
-    file:File;
-    title?:string;
+    id:string; // UUID local
+    fileId:number;
     name:string;
     size:number;
-    type:string;
+    title?:string;
+    description?:string;
+
 }

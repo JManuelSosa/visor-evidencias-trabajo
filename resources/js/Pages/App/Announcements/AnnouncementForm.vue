@@ -5,6 +5,7 @@ import TextEditor from '@/components/TextEditor.vue';
 import { UrlItem } from '@/core/UrlItem';
 
 import type { FileItem } from '@/core/FileItem';
+import type { AnnouncementFilePayload } from '@/core/files/AnnouncementFilePayload';
 
 import { useUrls } from '@/composables/useUrls';
 import UrlFormSection from '@/components/organisms/UrlFormSection.vue';
@@ -29,7 +30,7 @@ const form = useForm({
     title: '',
     content: '',
     urls: [] as UrlItem[],
-    files: [] as { document: File, title: string, name:string, mime_type:string, sizeBytes:number }[]
+    files: [] as AnnouncementFilePayload[]
 });
 
 function submitAnnouncement(){
@@ -40,12 +41,11 @@ function submitAnnouncement(){
 
     form.urls = listUrl.value;
 
-    form.files = files.value.map( file => ({
-        document: file.file,
+    form.files = files.value.map((file, index) => ({
+        file_id: file.fileId,
         title: file.title as string,
-        name: file.name,
-        mime_type: file.type,
-        sizeBytes: file.size
+        description: file?.description ?? '',
+        sort_order: index
     }));
 
     console.log(form);

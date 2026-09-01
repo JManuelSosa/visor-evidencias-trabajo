@@ -16,7 +16,7 @@ class FilesR2Service {
         /** @var AwsS3V3Adapter $disk */
         $disk = Storage::disk('r2');
 
-        $expiration = Carbon::now()->addHour();
+        $expiration = Carbon::now()->addHours(2);
 
         ['url' => $url, 'headers' => $headers] = $disk->temporaryUploadUrl($storagePath, $expiration, ['ContentType' => $mimeType]);
 

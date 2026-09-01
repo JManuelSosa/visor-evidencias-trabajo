@@ -3,7 +3,9 @@ import { ref, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
 import { Button, Select, Popover } from 'primevue';
+import DOMPurify from 'dompurify';
 
 const editorProps = defineProps({
     modelValue: { type: String, default: '' },
@@ -19,10 +21,24 @@ const popoverRef = ref(); // Ref para el Popover
 const editor = useEditor({
     content: editorProps.modelValue,
     extensions: [
-        StarterKit,
-        TextAlign.configure({ types: ['heading', 'paragraph'] })
+        StarterKit.configure({
+            blockquote:false,
+            code:false,
+            codeBlock:false
+        }),
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        Underline
     ],
-    onUpdate: ({ editor }) => emit('update:modelValue', editor.getHTML()),
+    onUpdate: ({ editor }) => {
+
+        const rawHTML = editor.getHTML();
+        const cleanHTML = DOMPurify.sanitize(rawHTML, {
+            ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'strong', 'em', 'u', 's', 'ul', 'ol', 'li', 'hr', 'br'],
+            ALLOWED_ATTR: ['style'],
+            ALLOW_DATA_ATTR: false,
+        });
+        emit('update:modelValue', cleanHTML);
+    },
     onTransaction: () => { currentTextType.value = getCurrentTextType(); },
     editorProps: {
         attributes: {

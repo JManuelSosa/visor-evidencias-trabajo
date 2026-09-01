@@ -67,10 +67,8 @@ export function useFileUploadToast(onFileSuccess:(fileItem:FileItem) => void) {
                 onFileSuccess({
                     id: uploadId,
                     fileId: fileId,
-                    file: upload.file,
                     name: upload.file.name,
                     size: upload.file.size,
-                    type: upload.file.type,
                     title: ''
                 });
 

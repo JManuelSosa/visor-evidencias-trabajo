@@ -13,7 +13,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => [],
     allowedTypes: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
-    maxSize: toByteSize(1,"GB"),
+    maxSize: toByteSize(500, "MB"),
     class: '',
 });
 
