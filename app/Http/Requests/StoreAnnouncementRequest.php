@@ -3,6 +3,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ValidateAttachments;
@@ -42,7 +43,7 @@ class StoreAnnouncementRequest extends FormRequest
         ]);
     }
 
-    public function withValidator($validator){
+    public function withValidator(Validator $validator){
         $this->validateAttachmentOwnership($validator);
     }
 }

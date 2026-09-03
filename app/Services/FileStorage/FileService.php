@@ -11,6 +11,10 @@ class FileService {
         return File::create($data);
     }
 
+    public function syncManyFileStatus(array $ids):void {
+        File::whereIn('id', $ids)->update(["file_status" => FileStatus::Published->value]);
+    }
+
     public function prepareDataForCreate(array $data):array {
 
         $requiredFields = [

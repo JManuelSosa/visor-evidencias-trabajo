@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Announcement;
-use App\Http\Requests\UpdateAnnouncementRequest;
 
 //* Use Cases
 use App\Services\UseCases\CreateAnnouncementUseCase;
@@ -15,17 +15,14 @@ use App\Http\Requests\StoreAnnouncementRequest;
 
 class AnnouncementController extends Controller
 {
-
     public function __construct(private CreateAnnouncementUseCase $announcementUseCase){}
 
     public function createAnnouncement(StoreAnnouncementRequest $request) {
 
         $validatedData = $request->validated();
         $validatedData['created_by'] = Auth::id();
+        $this->announcementUseCase->createNewAnnouncement($validatedData);
 
-        $newAnnouncement = $this->announcementUseCase->createNewAnnouncement($validatedData);
-
+        return response()->json(["message" => "ok"], 200);
     }
-
-
 }

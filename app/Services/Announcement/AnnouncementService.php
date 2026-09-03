@@ -2,13 +2,16 @@
 namespace App\Services\Announcement;
 
 use App\Models\Announcement;
+use App\Actions\CleanHtmlAction;
 
 class AnnouncementService {
+
+    public function __construct(private CleanHtmlAction $cleaner){}
 
     public function createAnnouncement(array $data): Announcement {
         return Announcement::create([
             'title' => $data['title'],
-            'content' => $data['content'],
+            'content' => ($this->cleaner)($data['content']),
             'created_by' => $data['created_by']
         ]);
     }
@@ -32,9 +35,4 @@ class AnnouncementService {
 
         $announcement->files()->attach($dataForInsert);
     }
-
-    public function attachUrls(){
-
-    }
-
 }

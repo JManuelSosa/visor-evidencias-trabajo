@@ -15,10 +15,6 @@ use App\Models\File;
 use App\Models\Comment;
 use App\Models\EvidenceStar;
 
-//* Utilidades
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use App\Support\Sanitizer\HTMLCleaner;
-
 class WorkEvidence extends Model
 {
     protected $table = "work_evidence";
@@ -48,16 +44,5 @@ class WorkEvidence extends Model
 
     public function stars():HasMany {
         return $this->hasMany(EvidenceStar::class, 'evidence_id', 'id');
-    }
-
-    /**
-     * NOTA: este mutator sanitiza HTML solo cuando se pasa por una instancia
-     * del modelo (create(), save(), update() de instancia). No protege
-     * updates masivos vía query builder (Announcement::query()->update())
-     * ni DB::table('announcements'). Usar siempre la instancia del modelo
-     * para escrituras en 'content'.
-     */
-    protected function content(): Attribute{
-        return Attribute::make(set: fn (?string $value) => app(HTMLCleaner::class)->cleanTiptap($value));
     }
 }

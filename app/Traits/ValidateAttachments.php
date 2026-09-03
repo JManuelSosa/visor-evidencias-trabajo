@@ -20,7 +20,7 @@ trait ValidateAttachments {
 
             'urls' => ['sometimes', 'array'],
             'urls.*.url' => ['required', 'url', 'max:2048'],
-            'urls.*.title' => ['nullable', 'string', 'max:255'],
+            'urls.*.label' => ['nullable', 'string', 'max:255']
         ];
     }
 
@@ -37,8 +37,8 @@ trait ValidateAttachments {
             'urls.*.url.url' => 'Una o más URLs proporcionadas no tienen un formato válido.',
             'urls.*.url.required' => 'Una o más URLs proporcionadas no tienen enlace.',
             'urls.*.url.max' => 'Una o más URLs no puede ser mas largo que :max caracteres.',
-            'urls.*.title.string' => 'El título de la URL no tiene un formato válido',
-            'urls.*.title.max' => 'El titulo de una o más urls no debe ser mayor a :max caracteres'
+            'urls.*.label.string' => 'El título de la URL no tiene un formato válido',
+            'urls.*.label.max' => 'El titulo de una o más urls no debe ser mayor a :max caracteres'
         ];
     }
 
