@@ -3,6 +3,7 @@ import { Button, InputText, Accordion, AccordionContent, AccordionHeader, Accord
 import MainLayout from '@/Layouts/MainLayout.vue';
 import TextEditor from '@/components/TextEditor.vue';
 import { UrlItem } from '@/core/UrlItem';
+import { Link } from '@inertiajs/vue3';
 
 import type { FileItem } from '@/core/FileItem';
 import type { AnnouncementFilePayload } from '@/core/files/AnnouncementFilePayload';
@@ -36,26 +37,28 @@ const form = useForm({
 function submitAnnouncement(){
 
     const formIsValid:boolean = validateFormFields();
-
     if(!formIsValid) return;
 
-    form.urls = listUrl.value;
-
-    form.files = files.value.map((file, index) => ({
-        file_id: file.fileId,
-        title: file.title as string,
-        description: file?.description ?? '',
-        sort_order: index
-    }));
-
+    form.transform((data) => ({
+        ...data,
+        urls: listUrl.value,
+        files: files.value.map((file, index) => ({
+            file_id: file.fileId,
+            title: file.title as string,
+            description: file?.description ?? '',
+            sort_order: index + 1
+        }))
+    })).post('/anuncios/agregar', {
+        preserveScroll: true,
+        onSuccess: () => {
+            clearForm();
+            form.reset();
+        }
+    })
     console.log(form);
-    // console.log(form.content);
-    // clearForm();
 }
 
 function clearForm(){
-    form.title = '';
-    form.content = '';
     clearFileList();
     clearUrlList();
 }
@@ -95,7 +98,7 @@ function validateFormFields():boolean {
 <template>
     <section class="flex flex-col gap-6">
         <div class="flex md:flex-col gap-6 items-start">
-            <Button size="small" rounded>
+            <Button size="small" rounded :as="Link" href="/anuncios">
                 <i class="ri-arrow-left-s-line"></i>
                 Volver
             </Button>

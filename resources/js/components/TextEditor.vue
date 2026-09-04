@@ -350,7 +350,7 @@ watch(() => editorProps.modelValue, (value) => {
 }
 
 .tiptap-editor h1 {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 600;
     margin: 0.8em 0 0.4em;
     line-height: 1.3;

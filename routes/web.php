@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\AnnouncementController;
 
 // Storage
 use App\Http\Controllers\FileStorage\FileUploadController;
@@ -46,21 +47,11 @@ Route::middleware('auth')->group(function() {
             return Inertia::render('App/Home');
         })->name('home');
 
-        Route::prefix('/anuncios')->group(function(){
-            Route::get('/', function() {
-                return Inertia::render('App/Announcements/Announcement');
-            })->name('index');
-
-            Route::get('/agregar', function() {
-                return Inertia::render('App/Announcements/AnnouncementForm');
-            })->name('create');
-
-            Route::post('/agregar', function(){
-                return "Hola mundo";
-            })->name('store');
+        Route::prefix('/anuncios')->name('announcements.')->group(function(){
+            Route::get('/', [AnnouncementController::class, 'index'])->name('index');
+            Route::get('/agregar', [AnnouncementController::class, 'create'])->name('create');
+            Route::post('/agregar', [AnnouncementController::class, 'store'])->name('store');
         });
-
-
 
         Route::get('/evidencias', function() {
             return Inertia::render('App/Evidences');

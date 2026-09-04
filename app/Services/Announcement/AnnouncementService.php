@@ -3,10 +3,15 @@ namespace App\Services\Announcement;
 
 use App\Models\Announcement;
 use App\Actions\CleanHtmlAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class AnnouncementService {
 
     public function __construct(private CleanHtmlAction $cleaner){}
+
+    public function getAnnouncements(array $withRelations = []): Collection{
+        return Announcement::with($withRelations)->get();
+    }
 
     public function createAnnouncement(array $data): Announcement {
         return Announcement::create([
