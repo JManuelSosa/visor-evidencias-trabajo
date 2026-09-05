@@ -29,6 +29,8 @@ class Announcement extends Model
     }
 
     public function files():BelongsToMany {
-        return $this->belongsToMany(File::class, 'announcement_files', 'announcement_id', 'file_id')->withTimestamps();
+        return $this->belongsToMany(File::class, 'announcement_files', 'announcement_id', 'file_id')
+        ->withPivot(['id', 'title', 'description', 'sort_order'])
+        ->withTimestamps();
     }
 }

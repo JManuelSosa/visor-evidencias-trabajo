@@ -11,6 +11,10 @@ class FileService {
         return File::create($data);
     }
 
+    public function syncManyFileStatus(array $ids):void {
+        File::whereIn('id', $ids)->update(["file_status" => FileStatus::Published->value]);
+    }
+
     public function prepareDataForCreate(array $data):array {
 
         $requiredFields = [
@@ -38,9 +42,13 @@ class FileService {
             'file_type' => $data['file_type'],
             'uploaded_by' => $data['uploaded_by'] ?? null,
             'file_status' => $data['file_status'] ?? FileStatus::Pending->value,
-            'upload_id' => $data['upload_id'] ?? null,
-            'total_parts' => $data['total_parts'] ?? null,
-            'uploaded_parts' => $data['uploaded_parts'] ?? null,
         ];
+    }
+
+    public static function getFileType(string $mimeType):string {
+        if (empty($mimeType) || !str_contains($mimeType, '/')) {
+            throw new InvalidArgumentException('No se ha enviado un tipo MIME válido');
+        }
+        return explode('/', $mimeType)[0];
     }
 }

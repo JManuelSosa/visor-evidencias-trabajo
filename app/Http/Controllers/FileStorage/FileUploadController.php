@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 
 //* FormRequest
 use App\Http\Requests\FileStorage\FileRequest;
-
 //* UseCases
 use App\Services\UseCases\FileUploadUseCase;
+use App\Services\FileStorage\FileService;
 
 class FileUploadController extends Controller
 {
@@ -23,7 +23,7 @@ class FileUploadController extends Controller
 
         $data = [
             ...$validatedData,
-            "file_type" => explode('/', $validatedData['mime_type'])[0],
+            "file_type" => FileService::getFileType($validatedData['mime_type']),
             "file_size_bytes" => $validatedData['size'],
             "uploaded_by" => Auth::id()
         ];

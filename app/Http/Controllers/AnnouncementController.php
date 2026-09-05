@@ -1,66 +1,58 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Announcement;
+
+//* Services
+use App\Services\Announcement\AnnouncementService;
+
+//* Use Cases
+use App\Services\UseCases\CreateAnnouncementUseCase;
+
+//* HTTP
+use Illuminate\Support\Facades\Auth;
+
+//* Form Request
 use App\Http\Requests\StoreAnnouncementRequest;
-use App\Http\Requests\UpdateAnnouncementRequest;
+use Exception;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class AnnouncementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    public function __construct(
+        private AnnouncementService $announcementService,
+        private CreateAnnouncementUseCase $announcementUseCase
+    ){}
+
+    public function index(){
+        $announcements = $this->announcementService->getAnnouncements(['urls', 'files']);
+        return Inertia::render('App/Announcements/Announcement', [
+            "announcements" => $announcements
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    public function create(){
+        return Inertia::render('App/Announcements/AnnouncementForm');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAnnouncementRequest $request)
-    {
-        //
-    }
+    public function store(StoreAnnouncementRequest $request) {
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Announcement $announcement)
-    {
-        //
-    }
+        $validatedData = $request->validated();
+        $validatedData['created_by'] = Auth::id();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Announcement $announcement)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAnnouncementRequest $request, Announcement $announcement)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Announcement $announcement)
-    {
-        //
+        try {
+            $announcement = $this->announcementUseCase->createNewAnnouncement($validatedData);
+            return redirect()->route('announcements.index')->with('success', 'Anuncio creado exitosamente');
+        }
+        catch(QueryException $dbException){
+            Log::error("Error al crear el anuncio" . $dbException->getMessage(), ["data" => $validatedData]);
+            return redirect()->back()->withInput()->with('error', 'Ocurrió un error al crear el anuncio. Reintente nuevamente');
+        }
+        catch(Exception $error){
+            Log::error("Error inesperado al crear el anuncio" . $error->getMessage());
+            return redirect()->back()->withInput()->with('error', 'El sistema no puede procesar tu solicitud en este momento');
+        }
     }
 }
