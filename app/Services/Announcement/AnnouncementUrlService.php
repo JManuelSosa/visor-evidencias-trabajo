@@ -13,7 +13,7 @@ class AnnouncementUrlService {
             return [
                 "announcement_id" => $announcement->id,
                 "url" => $data['url'],
-                "label" => $data['label'] ?? 'Enlace de sitio web',
+                "label" => $data['title'] ?? 'Enlace de sitio web',
                 "type" => UrlType::detectFromUrl($data['url'])->value,
                 "created_at" => $now,
                 "updated_at" => $now

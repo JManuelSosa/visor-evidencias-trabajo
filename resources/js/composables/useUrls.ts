@@ -27,7 +27,7 @@ export function useUrls(){
     function removeUrl(id:string) {
         if(!id) return;
 
-        listUrl.value = listUrl.value.filter(url => url.internalId !== id);
+        listUrl.value = listUrl.value.filter(url => url.id !== id);
     }
 
     function isDuplicate(url:UrlItem){

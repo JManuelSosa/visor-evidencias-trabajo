@@ -18,7 +18,6 @@ export function useFiles(){
     }
 
     function setTitle(id:string, title:string){
-
         const index:number = files.value.findIndex(file => file.id === id);
 
         if(index === -1) return;

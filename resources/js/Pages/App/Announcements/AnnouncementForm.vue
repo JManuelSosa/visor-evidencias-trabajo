@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Button, InputText, Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primevue';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import TextEditor from '@/components/TextEditor.vue';
@@ -53,9 +54,11 @@ function submitAnnouncement(){
         onSuccess: () => {
             clearForm();
             form.reset();
+        },
+        onError: (e) => {
+            toast.error("Ha ocurrido un error, el anuncio tiene errores que impiden que pueda crearse");
         }
     })
-    console.log(form);
 }
 
 function clearForm(){
@@ -92,7 +95,22 @@ function validateFormFields():boolean {
     return true;
 }
 
+// Errores
+function usePrefixErrors(prefix:string){
+    return computed(() => {
+        const mapError:Record<string,string> = {};
+        const fullPrefix:string = `${prefix}.`;
 
+        for(const [key, msg] of Object.entries(form.errors)){
+            if(key.startsWith(fullPrefix) && msg) mapError[key] = msg as string;
+        }
+
+        return mapError;
+    })
+}
+
+const urlErrors = usePrefixErrors('urls');
+const fileErrors = usePrefixErrors('files');
 </script>
 
 <template>
@@ -125,35 +143,31 @@ function validateFormFields():boolean {
 
                 <div class="flex-1 min-h-0 flex flex-col">
                     <Accordion value="0" class="bg-system-theme-200 rounded-lg border border-system-theme-300 overflow-hidden">
-
                         <AccordionPanel value="0">
                             <AccordionHeader class="w-full flex justify-between bg-system-theme-300 p-4 border-b border-system-theme-400 overflow-hidden">
                                 <span>Enlaces ({{ counterUrl }})</span>
                             </AccordionHeader>
                             <AccordionContent>
-                                <UrlFormSection :items="listUrl" :count-label="counterLabel" v-on:add-url="addUrl" v-on:remove-url="removeUrl"/>
+                                <UrlFormSection :items="listUrl" :count-label="counterLabel" :errors="urlErrors" :is-processing="form.processing" v-on:add-url="addUrl" v-on:remove-url="removeUrl"/>
                             </AccordionContent>
                         </AccordionPanel>
 
-
-                    <AccordionPanel value="1">
-
-                        <AccordionHeader>Archivos subidos ({{ files.length }})</AccordionHeader>
-                        <AccordionContent>
-                            <FilesFormSection
-                                :files="files"
-                                :file-counter="counterFiles"
-                                :context="context"
-                                @update:files="setFiles"
-                                @update:title="setTitle"
-                                @remove="removeFile"
-                            />
-                        </AccordionContent>
-                    </AccordionPanel>
-
-
-
-                </Accordion>
+                        <AccordionPanel value="1">
+                            <AccordionHeader>Archivos subidos ({{ files.length }})</AccordionHeader>
+                            <AccordionContent>
+                                <FilesFormSection
+                                    :files="files"
+                                    :file-counter="counterFiles"
+                                    :context="context"
+                                    :errors="fileErrors"
+                                    :is-processing="form.processing"
+                                    @update:files="setFiles"
+                                    @update:title="setTitle"
+                                    @remove="removeFile"
+                                />
+                            </AccordionContent>
+                        </AccordionPanel>
+                    </Accordion>
                 </div>
 
                 <Button type="submit" :loading="form.processing">

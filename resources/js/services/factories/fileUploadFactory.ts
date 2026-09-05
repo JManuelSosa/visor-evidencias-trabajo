@@ -13,7 +13,7 @@ export const presignedUrlService = USE_MOCKS ? mockPresignedUrl() : realPresigne
 
 export const uploadToR2 = USE_MOCKS ? mockUploadToR2 : realUploadToR2;
 
-// ✅ NUEVO: Exponer funciones de configuración en desarrollo
+// Exponer funciones de configuración en desarrollo
 if (USE_MOCKS) {
     (window as any).__UPLOAD_MOCKS__ = {
         configurePresignedUrl: configureMockPresignedUrl,
@@ -21,8 +21,8 @@ if (USE_MOCKS) {
         resetAll: () => {
             resetMockPresignedUrlConfig();
             resetMockUploadConfig();
-            console.log('✅ Mocks reseteados a valores por defecto');
+            console.log('Mocks reseteados a valores por defecto');
         }
     };
-    console.log('🧪 Upload Mocks activados. Usa window.__UPLOAD_MOCKS__ para configurar escenarios');
+    console.log('Upload Mocks activados. Usa window.__UPLOAD_MOCKS__ para configurar escenarios');
 }
