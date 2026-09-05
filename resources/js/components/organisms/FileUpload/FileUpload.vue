@@ -13,12 +13,14 @@ interface Props {
     allowedTypes?:string[];
     class?:string;
     context:ContextType;
+    isProcessing?:boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => [],
     allowedTypes: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
-    class: ''
+    class: '',
+    isProcessing: false
 });
 
 const emit = defineEmits<{
@@ -36,6 +38,7 @@ const { handleFilesSelected, handleDropzoneError } = useFileUploadToast((newFile
         <FileUploadZone
             :allowed-types="allowedTypes"
             :context="context"
+            :is-processing="props.isProcessing"
             @files-selected="(files) => handleFilesSelected(files, context)"
             @error="handleDropzoneError"
         />

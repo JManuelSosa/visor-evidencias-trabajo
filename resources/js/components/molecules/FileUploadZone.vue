@@ -8,6 +8,7 @@ interface Props {
     maxSize?:number;
     class?:string;
     context:ContextType;
+    isProcessing?:boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -15,6 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
     allowedTypes: () => ['image/*', 'video/*', 'application/pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
     maxSize: toByteSize(500, "MB"),
     class: '',
+    isProcessing:false
 });
 
 const isDragging = ref(false);
@@ -28,7 +30,7 @@ const acceptAtributte = computed(() => props.allowedTypes.join(', '));
 
 function addFiles(fileList:FileList|null):void {
 
-    if(!fileList || fileList.length === 0) return;
+    if(props.isProcessing || !fileList || fileList.length === 0) return;
 
     const validFiles:File[] = [];
 
@@ -80,14 +82,17 @@ function isFileAllowed(file:File, allowedTypes:string[]):boolean {
 
 function handleDragEnter(e:DragEvent):void {
     e.preventDefault();
+    if(props.isProcessing) return;
+
     dragCounter.value++;
     isDragging.value = true;
 }
 
 function handleDragLeave(e:DragEvent):void {
     e.preventDefault();
-    dragCounter.value--;
+    if(props.isProcessing) return;
 
+    dragCounter.value--;
     if(dragCounter.value === 0) isDragging.value = false;
 }
 
@@ -97,6 +102,7 @@ function handleDragOver(e:DragEvent):void {
 
 function handleDrop(e:DragEvent):void {
     e.preventDefault();
+    if(props.isProcessing) return;
 
     dragCounter.value = 0;
     isDragging.value = false;
@@ -124,6 +130,7 @@ function handleDrop(e:DragEvent):void {
             class="absolute inset-0 h-full w-full opacity-0 cursor-pointer z-10"
             @change="(e) => addFiles((e.target as HTMLInputElement).files)"
             :accept="acceptAtributte"
+            :disabled="props.isProcessing"
         >
 
         <div class="flex flex-col items-center justify-center pointer-events-none z-0 text-system-theme-400" :class="{ 'text-system-theme-800': isDragging }">

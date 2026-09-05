@@ -1,5 +1,5 @@
 export interface UrlItem {
-    internalId:string;
+    id:string;
     title:string;
     url:string;
 }
