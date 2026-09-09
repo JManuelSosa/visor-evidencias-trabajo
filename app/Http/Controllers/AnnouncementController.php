@@ -13,6 +13,9 @@ use App\Services\UseCases\CreateAnnouncementUseCase;
 //* HTTP
 use Illuminate\Support\Facades\Auth;
 
+//* Resources
+use App\Http\Resources\AnnouncementIndexResource;
+
 //* Form Request
 use App\Http\Requests\StoreAnnouncementRequest;
 use Exception;
@@ -27,9 +30,10 @@ class AnnouncementController extends Controller
     ){}
 
     public function index(){
-        $announcements = $this->announcementService->getAnnouncements(['urls', 'files']);
+        $announcements = $this->announcementService->getAnnouncements(['urls', 'files', 'author.person']);
+        $announcementsDTO = AnnouncementIndexResource::collection($announcements);
         return Inertia::render('App/Announcements/Announcement', [
-            "announcements" => $announcements
+            "announcements" => $announcementsDTO
         ]);
     }
 

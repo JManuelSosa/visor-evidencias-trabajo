@@ -8,6 +8,14 @@ use Carbon\Carbon;
 
 class FilesR2Service {
 
+    public function getPublicUrl(string $storagePath): string {
+
+        /** @var AwsS3V3Adapter $disk */
+        $disk = Storage::disk('r2');
+
+        return $disk->url($storagePath);
+    }
+
     /**
      * Genera una URL firmada para subir un archivo directamente a R2.
      */
