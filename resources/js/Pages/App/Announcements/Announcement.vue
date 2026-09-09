@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { Button } from 'primevue';
 import { Link } from '@inertiajs/vue3';
-import { usePage } from '@inertiajs/vue3';
 
+// Layouts
 import MainLayout from '../../../Layouts/MainLayout.vue';
+
+// Tipos
+import { AnnouncementDTO } from '@/core/acl/announcements/AnnouncementDTO.ts';
+
 
 defineOptions({ layout:MainLayout });
 
-const page = usePage();
-console.log(page.props.announcements);
+const props = defineProps<{
+    announcements:AnnouncementDTO[]
+}>();
+
 </script>
 
 <template>
@@ -17,6 +23,6 @@ console.log(page.props.announcements);
         Crear anuncio
     </Button>
     <pre>
-        {{ page.props.announcements }}
+        {{ props.announcements }}
     </pre>
 </template>
