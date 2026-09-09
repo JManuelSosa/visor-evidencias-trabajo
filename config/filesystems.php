@@ -67,8 +67,9 @@ return [
             'region' => 'auto',
             'bucket' => env('CLOUDFLARE_R2_BUCKET'),
             'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+            'url' => env('CLOUDFLARE_R2_URL'),
             'visibility' => 'private',
-            'throw' => true,
+            'throw' => true
         ]
 
     ],

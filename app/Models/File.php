@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 //* Relaciones
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,6 +16,9 @@ use App\Models\WorkEvidence;
 
 //* Enums
 use App\Enums\FileStatus;
+
+//* Services
+use App\Services\FileStorage\FilesR2Service;
 
 class File extends Model
 {
@@ -47,5 +51,9 @@ class File extends Model
     public function evidences():BelongsToMany {
         return $this->belongsToMany(WorkEvidence::class, "evidence_files", "file_id", "evidence_id")
         ->withPivot(['id', 'name', 'description', 'created_by'])->withTimestamps();
+    }
+
+    protected function publicUrl():Attribute {
+        return Attribute::make(get: fn() => app(FilesR2Service::class)->getPublicUrl($this->storage_path));
     }
 }
