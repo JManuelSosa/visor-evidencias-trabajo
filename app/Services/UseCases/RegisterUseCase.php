@@ -29,12 +29,12 @@ class RegisterUseCase {
             $dataNewPerson = $this->personService->prepareForCreate($data);
             $newPerson = $this->personService->createPerson($dataNewPerson);
 
+            //TODO: Sacar el evento fuera de la transaction para evitar cuello de botella.
+            //TODO: Crear un evento personalizado propio que sea asíncrono en lugar de síncrono para evitar congelar la aplicación mientras el servicio de sendmail envía el correo
             // 4. Disparamos el evento de correo
             event(new Registered($newUser));
 
             return (object) compact('newUser', 'newPerson');
         });
-
     }
-
 }
