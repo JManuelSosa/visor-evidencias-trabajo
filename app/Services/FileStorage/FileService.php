@@ -26,7 +26,6 @@ class FileService {
         ];
 
         foreach($requiredFields as $field => $errorLabel) {
-
             $label = $errorLabel['errorLabel'];
 
             if(!isset($data[$field])){
@@ -46,9 +45,26 @@ class FileService {
     }
 
     public static function getFileType(string $mimeType):string {
+
         if (empty($mimeType) || !str_contains($mimeType, '/')) {
             throw new InvalidArgumentException('No se ha enviado un tipo MIME válido');
         }
-        return explode('/', $mimeType)[0];
+
+        return match($mimeType){
+            'image/jpeg', 'image/png', 'image/webp' => "image",
+            'video/mp4', 'video/webm', 'video/quicktime' => "video",
+            'application/pdf' => 'pdf',
+
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword' => 'document',
+
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel' => 'spreadsheet',
+
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/vnd.ms-powerpoint' => 'presentation',
+
+            default => throw new InvalidArgumentException("Tipo MIME no soportado: {$mimeType}")
+        };
     }
 }
