@@ -40,7 +40,7 @@ const editor = useEditor({
     onTransaction: () => { currentTextType.value = getCurrentTextType(); },
     editorProps: {
         attributes: {
-            class: 'tiptap-editor focus:outline-none p-4 bg-white',
+            class: 'rich-text-content focus:outline-none p-4 bg-white',
             style: `min-height: ${editorProps.minHeight}`
         }
     }
@@ -337,62 +337,5 @@ watch(() => editorProps.modelValue, (value) => {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-}
-
-.tiptap-editor {
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: #374151;
-    height: 100%;
-    min-height: 100%;
-}
-
-.tiptap-editor h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 0.8em 0 0.4em;
-    line-height: 1.3;
-}
-
-.tiptap-editor h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0.7em 0 0.35em;
-    line-height: 1.35;
-}
-
-.tiptap-editor h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0.6em 0 0.3em;
-    line-height: 1.4;
-}
-
-.tiptap-editor p {
-    margin-bottom: 0.6em;
-}
-
-.tiptap-editor ul,
-.tiptap-editor ol {
-    padding-left: 1.5em;
-    margin-bottom: 0.6em;
-}
-
-.tiptap-editor ul {
-    list-style-type: disc;
-}
-
-.tiptap-editor ol {
-    list-style-type: decimal;
-}
-
-.tiptap-editor li {
-    margin-bottom: 0.2em;
-}
-
-.tiptap-editor hr {
-    border: 0;
-    border-top: 2px solid #e5e7eb;
-    margin: 1.2em 0;
 }
 </style>
