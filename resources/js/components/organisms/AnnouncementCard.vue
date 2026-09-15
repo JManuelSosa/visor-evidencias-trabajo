@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { AnnouncementFile, FileType } from '@/core/acl/announcements/AnnouncementFile';
 import FileLink from '@/components/atoms/FileLink.vue';
+import { Button } from 'primevue';
 
 const props = defineProps<{
     titulo:string;
@@ -14,12 +15,24 @@ const fileFinders:FileType[] = ["document", "pdf", "presentation", "spreadsheet"
 const mediaFileFinders:FileType[] = ["image", "video"];
 
 const documentFiles = computed(() => {
-    return props.files.filter(file => fileFinders.includes(file.file_type)).sort((a, b) => a.sort_order - b.sort_order);
+    return props.files.filter(file => fileFinders.includes(file.file_type)).toSorted((a, b) => a.sort_order - b.sort_order);
 });
 
 const mediaFiles = computed(() => {
-    return props.files.filter(file => mediaFileFinders.includes(file.file_type)).sort((a, b) => a.sort_order - b.sort_order);
+    return props.files.filter(file => mediaFileFinders.includes(file.file_type)).toSorted((a, b) => a.sort_order - b.sort_order);
 })
+
+const firstThumbnail = computed(() => {
+    let thumbnail = null;
+
+    for(let file of mediaFiles.value){
+        if(file.file_type !== "image") continue;
+        thumbnail = file;
+        break;
+    }
+
+    return thumbnail;
+});
 
 
 </script>
@@ -33,7 +46,7 @@ const mediaFiles = computed(() => {
             </div>
         </header>
 
-        <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
             <section class="rounded-xl h-fit flex-1 bg-white border border-gray-300 p-5">
                 <div v-html="contenido" class="rich-text-content"></div>
             </section>
@@ -46,6 +59,27 @@ const mediaFiles = computed(() => {
                 </ul>
             </section>
         </div>
+
+        <section class="flex items-center bg-system-theme-200 rounded-xl p-3 min-h-18 justify-between" v-if="mediaFiles.length !== 0">
+            <div class="flex items-center gap-5">
+                <img v-if="firstThumbnail !== null"
+                    :src="firstThumbnail.url"
+                    :alt="`Portada de imagen para el anuncio: ${ titulo }`"
+                    class="w-18 aspect-square"
+                    loading="lazy"
+                    decoding="async"
+                >
+                <div class="flex flex-col self-start">
+                    <h3 class="text-lg font-semibold">Imágenes y videos</h3>
+                    <span class="text-sm">Este anuncio tiene {{ mediaFiles.length }} videos e imágenes</span>
+                </div>
+            </div>
+
+
+            <Button variant="link" class="text-xl! mr-6! hover:underline!">
+                Ver
+            </Button>
+        </section>
 
 
     </article>
