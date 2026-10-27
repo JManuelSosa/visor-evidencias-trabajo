@@ -32,7 +32,7 @@ console.log(props.announcements.data)
         </Button>
     </header>
 
-    <div class="flex flex-col w-full md:w-4/5 mx-auto gap-20">
+    <div class="flex flex-col w-full md:23/24 lg:w-4/5 mx-auto gap-20">
         <template v-for="announcement in props.announcements.data" :key="announcement.title">
             <AnnouncementCard
                 :titulo="announcement.title"

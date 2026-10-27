@@ -46,7 +46,7 @@ function handleGalleryState(state:boolean){
 
 <template>
     <article class="bg-background h-fit rounded-3xl shadow-card-2 p-8">
-        <header class="flex flex-col mb-4">
+        <header class="flex flex-col mb-4 gap-2.5">
             <h2 class="text-system-theme-700 font-bold text-3xl truncate block">{{ titulo }}</h2>
             <div class="text-sm">
                 <span class="text-system-theme-500">Creado por: </span><span class="text-system-theme-900 font-semibold">{{ autor }}</span>
@@ -57,7 +57,8 @@ function handleGalleryState(state:boolean){
             <section class="rounded-xl h-fit flex-1 bg-white border border-gray-300 p-5">
                 <div v-html="contenido" class="rich-text-content"></div>
             </section>
-            <section class="rounded-xl shrink-0 bg-system-theme-100 p-5 h-fit max-w-1/4 overflow-hidden">
+
+            <section v-if="documentFiles.length > 0" class="rounded-xl shrink-0 bg-system-theme-100 p-5 h-fit md:max-w-1/4 overflow-hidden">
                 <h3>Documentos adjuntos</h3>
                 <ul class="flex flex-col gap-1">
                     <template v-for="file in documentFiles" :key="file.url">
