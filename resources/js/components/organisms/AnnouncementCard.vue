@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { AnnouncementFile, FileType } from '@/core/acl/announcements/AnnouncementFile';
 import FileLink from '@/components/atoms/FileLink.vue';
 import { Button } from 'primevue';
+
+import Gallery from './Gallery.vue';
 
 const props = defineProps<{
     titulo:string;
@@ -34,6 +36,11 @@ const firstThumbnail = computed(() => {
     return thumbnail;
 });
 
+const isOpenGallery = ref(false);
+
+function handleGalleryState(state:boolean){
+    isOpenGallery.value = state;
+}
 
 </script>
 
@@ -76,10 +83,12 @@ const firstThumbnail = computed(() => {
             </div>
 
 
-            <Button variant="link" class="text-xl! mr-6! hover:underline!">
+            <Button variant="link" class="text-xl! mr-6! hover:underline!" v-on:click="() => handleGalleryState(true)">
                 Ver
             </Button>
         </section>
+
+        <Gallery :is-open="isOpenGallery" @update:visible="handleGalleryState" :media-files="mediaFiles"></Gallery>
 
 
     </article>
