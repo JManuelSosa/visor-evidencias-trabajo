@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { AnnouncementFile, FileType } from '@/core/acl/announcements/AnnouncementFile';
 import FileLink from '@/components/atoms/FileLink.vue';
 import { Button } from 'primevue';
+
+import Gallery from './Gallery.vue';
 
 const props = defineProps<{
     titulo:string;
@@ -34,12 +36,17 @@ const firstThumbnail = computed(() => {
     return thumbnail;
 });
 
+const isOpenGallery = ref(false);
+
+function handleGalleryState(state:boolean){
+    isOpenGallery.value = state;
+}
 
 </script>
 
 <template>
     <article class="bg-background h-fit rounded-3xl shadow-card-2 p-8">
-        <header class="flex flex-col mb-4">
+        <header class="flex flex-col mb-4 gap-2.5">
             <h2 class="text-system-theme-700 font-bold text-3xl truncate block">{{ titulo }}</h2>
             <div class="text-sm">
                 <span class="text-system-theme-500">Creado por: </span><span class="text-system-theme-900 font-semibold">{{ autor }}</span>
@@ -50,7 +57,8 @@ const firstThumbnail = computed(() => {
             <section class="rounded-xl h-fit flex-1 bg-white border border-gray-300 p-5">
                 <div v-html="contenido" class="rich-text-content"></div>
             </section>
-            <section class="rounded-xl shrink-0 bg-system-theme-100 p-5 h-fit max-w-1/4 overflow-hidden">
+
+            <section v-if="documentFiles.length > 0" class="rounded-xl shrink-0 bg-system-theme-100 p-5 h-fit md:max-w-1/4 overflow-hidden">
                 <h3>Documentos adjuntos</h3>
                 <ul class="flex flex-col gap-1">
                     <template v-for="file in documentFiles" :key="file.url">
@@ -76,10 +84,12 @@ const firstThumbnail = computed(() => {
             </div>
 
 
-            <Button variant="link" class="text-xl! mr-6! hover:underline!">
+            <Button variant="link" class="text-xl! mr-6! hover:underline!" v-on:click="() => handleGalleryState(true)">
                 Ver
             </Button>
         </section>
+
+        <Gallery :is-open="isOpenGallery" @update:visible="handleGalleryState" :media-files="mediaFiles"></Gallery>
 
 
     </article>
